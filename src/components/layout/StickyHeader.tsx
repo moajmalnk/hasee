@@ -43,12 +43,8 @@ export default function StickyHeader() {
     <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-lg border-b border-border">
       <div className="flex items-center justify-between px-4 h-14">
         <div className="flex items-center gap-2">
-          <div className="w-9 h-9 rounded-full bg-secondary border border-border flex items-center justify-center">
-            <img
-              src="/favicon.ico"
-              alt="Hasee Maxi"
-              className="w-7 h-7 object-cover object-left drop-shadow-sm"
-            />
+          <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center">
+            <span className="text-primary-foreground text-xs font-black">H</span>
           </div>
           <span className="text-lg font-bold text-foreground">Hasee</span>
         </div>
