@@ -1,16 +1,30 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import AppLayout from '@/components/layout/AppLayout';
+import ProductCard from '@/components/shop/ProductCard';
+import { products } from '@/data/products';
 
-// IMPORTANT: Fully REPLACE this with your own code
-const PlaceholderIndex = () => {
-  // PLACEHOLDER: Replace this entire return statement with the user's app.
-  // The inline background color is intentionally not part of the design system.
+const Index = () => {
   return (
-    <div className="flex min-h-screen items-center justify-center" style={{ backgroundColor: '#fcfbf8' }}>
-      <img data-lovable-blank-page-placeholder="REMOVE_THIS" src="/placeholder.svg" alt="Your app will live here!" />
-    </div>
+    <AppLayout>
+      <div className="p-4 space-y-6">
+        {/* Hero Banner */}
+        <div className="bg-primary rounded-3xl p-6 text-primary-foreground">
+          <p className="text-xs font-bold uppercase tracking-widest opacity-80">New Collection</p>
+          <h1 className="text-2xl font-black mt-1">Summer Maxis</h1>
+          <p className="text-sm opacity-80 mt-1">Starting from ₹280</p>
+        </div>
+
+        {/* Product Grid */}
+        <section>
+          <h2 className="text-lg font-bold text-foreground mb-3">Trending Now</h2>
+          <div className="grid grid-cols-2 gap-3">
+            {products.map((product, i) => (
+              <ProductCard key={product.id} product={product} index={i} />
+            ))}
+          </div>
+        </section>
+      </div>
+    </AppLayout>
   );
 };
-
-const Index = PlaceholderIndex;
 
 export default Index;
