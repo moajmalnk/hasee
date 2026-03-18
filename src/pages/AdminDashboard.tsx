@@ -1,37 +1,71 @@
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { CheckCircle, XCircle, Star, TrendingUp, Trash2, Heart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
-import { mockReviews } from '@/data/mockData';
 import { products } from '@/data/products';
-import { productLikes } from '@/data/mockData';
-
-const orders = [
-  { id: '#8821', product: 'Rayon Maxi', amount: 380, customer: 'Aisha K.' },
-  { id: '#8822', product: 'Dubai Silk Maxi', amount: 550, customer: 'Priya M.' },
-  { id: '#8823', product: 'Cotton Maxi', amount: 280, customer: 'Fatima R.' },
-];
+import type { Review } from '@/data/mockData';
+import type { MockOrder } from '@/services/mockApi';
+import {
+  approveOrder,
+  approveReview as mockApproveReview,
+  deleteReview as mockDeleteReview,
+  getAllReviews,
+  getOrders,
+  getProductLikeCounts,
+  rejectOrder,
+} from '@/services/mockApi';
 
 const tabs = ['Orders', 'Reviews', 'Analytics'];
 
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState('Orders');
-  const [reviews, setReviews] = useState(mockReviews);
+  const [reviews, setReviews] = useState<Review[]>([]);
+  const [orders, setOrders] = useState<MockOrder[]>([]);
+  const [productLikeCounts, setProductLikeCounts] = useState<Record<number, number>>({});
+
+  useEffect(() => {
+    void (async () => {
+      try {
+        const [allReviews, allOrders, likeCounts] = await Promise.all([getAllReviews(), getOrders(), getProductLikeCounts()]);
+        setReviews(allReviews);
+        setOrders(allOrders);
+        setProductLikeCounts(likeCounts);
+      } catch {
+        toast.error("Failed to load admin dashboard data (mock)");
+      }
+    })();
+  }, []);
 
   const pendingReviews = reviews.filter(r => !r.approved);
   const approvedReviews = reviews.filter(r => r.approved);
 
-  const approveReview = (id: number) => {
-    setReviews(prev => prev.map(r => r.id === id ? { ...r, approved: true } : r));
+  const approveReview = async (id: number) => {
+    await mockApproveReview(id);
     toast.success('Review approved');
+    setReviews(await getAllReviews());
   };
 
-  const deleteReview = (id: number) => {
-    setReviews(prev => prev.filter(r => r.id !== id));
+  const deleteReview = async (id: number) => {
+    await mockDeleteReview(id);
     toast.error('Review deleted');
+    setReviews(await getAllReviews());
   };
 
-  const sortedByLikes = [...products].sort((a, b) => (productLikes[b.id] || 0) - (productLikes[a.id] || 0));
+  const sortedByLikes = useMemo(() => {
+    return [...products].sort((a, b) => (productLikeCounts[b.id] || 0) - (productLikeCounts[a.id] || 0));
+  }, [productLikeCounts]);
+
+  const onApproveOrder = async (orderId: string) => {
+    await approveOrder(orderId);
+    toast.success(`Order ${orderId} approved`);
+    setOrders(await getOrders());
+  };
+
+  const onRejectOrder = async (orderId: string) => {
+    await rejectOrder(orderId);
+    toast.error(`Order ${orderId} rejected`);
+    setOrders(await getOrders());
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -75,25 +109,43 @@ export default function AdminDashboard() {
         {activeTab === 'Orders' && (
           <section className="space-y-3">
             <h2 className="font-bold text-foreground">Order Verification</h2>
-            {orders.map((order) => (
+            {orders.length === 0 ? (
+              <div className="bg-card border border-border rounded-2xl p-4 text-center text-muted-foreground text-sm">
+                No orders yet (mock).
+              </div>
+            ) : (
+              orders.map((order) => (
               <div key={order.id} className="flex items-center gap-3 p-3 bg-card border border-border rounded-xl">
                 <div className="w-14 h-14 bg-secondary rounded-lg flex-shrink-0 flex items-center justify-center">
                   <span className="text-[10px] text-muted-foreground font-bold">Receipt</span>
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-bold text-foreground truncate">{order.id} — {order.customer}</p>
-                  <p className="text-xs text-muted-foreground">₹{order.amount} • {order.product}</p>
+                  <p className="text-xs text-muted-foreground">₹{order.amount} • {order.productName}</p>
                 </div>
                 <div className="flex gap-1.5">
-                  <Button size="icon" variant="ghost" className="h-8 w-8 text-whatsapp hover:bg-whatsapp/10" onClick={() => toast.success(`Order ${order.id} approved`)}>
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    className="h-8 w-8 text-whatsapp hover:bg-whatsapp/10"
+                    onClick={() => onApproveOrder(order.id)}
+                    disabled={order.status === 'Approved'}
+                  >
                     <CheckCircle className="w-5 h-5" strokeWidth={1.5} />
                   </Button>
-                  <Button size="icon" variant="ghost" className="h-8 w-8 text-destructive hover:bg-destructive/10" onClick={() => toast.error(`Order ${order.id} rejected`)}>
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    className="h-8 w-8 text-destructive hover:bg-destructive/10"
+                    onClick={() => onRejectOrder(order.id)}
+                    disabled={order.status === 'Rejected'}
+                  >
                     <XCircle className="w-5 h-5" strokeWidth={1.5} />
                   </Button>
                 </div>
               </div>
-            ))}
+              ))
+            )}
           </section>
         )}
 
@@ -166,7 +218,7 @@ export default function AdminDashboard() {
                 </div>
                 <div className="flex items-center gap-1">
                   <Heart className="w-4 h-4 fill-primary text-primary" strokeWidth={1.5} />
-                  <span className="text-sm font-bold text-foreground">{productLikes[product.id] || 0}</span>
+                  <span className="text-sm font-bold text-foreground">{productLikeCounts[product.id] || 0}</span>
                 </div>
               </div>
             ))}

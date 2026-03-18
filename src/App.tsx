@@ -11,6 +11,9 @@ import Profile from "./pages/Profile.tsx";
 import AdminDashboard from "./pages/AdminDashboard.tsx";
 import ProductDetail from "./pages/ProductDetail.tsx";
 import Community from "./pages/Community.tsx";
+import MyOrders from "./pages/MyOrders.tsx";
+import Wishlist from "./pages/Wishlist.tsx";
+import Settings from "./pages/Settings.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -29,6 +32,9 @@ const App = () => (
           <Route path="/community" element={<Community />} />
           <Route path="/product/:id" element={<ProductDetail />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path="/my-orders" element={<MyOrders />} />
+          <Route path="/wishlist" element={<Wishlist />} />
+          <Route path="/settings" element={<Settings />} />
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
           <Route path="*" element={<NotFound />} />
         </Routes>

@@ -1,26 +1,23 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Heart, MessageCircle } from 'lucide-react';
 import AppLayout from '@/components/layout/AppLayout';
-import { communityPosts } from '@/data/mockData';
+import type { CommunityPostView } from '@/services/mockApi';
+import { getCommunityPosts, toggleCommunityLike } from '@/services/mockApi';
 
 export default function Community() {
-  const [likedPosts, setLikedPosts] = useState<Set<number>>(new Set());
-  const [likeCounts, setLikeCounts] = useState<Record<number, number>>(
-    Object.fromEntries(communityPosts.map(p => [p.id, p.likes]))
-  );
+  const [posts, setPosts] = useState<CommunityPostView[]>([]);
 
-  const toggleLike = (postId: number) => {
-    setLikedPosts(prev => {
-      const next = new Set(prev);
-      if (next.has(postId)) next.delete(postId);
-      else next.add(postId);
-      return next;
-    });
-    setLikeCounts(prev => ({
-      ...prev,
-      [postId]: likedPosts.has(postId) ? prev[postId] - 1 : prev[postId] + 1,
-    }));
+  useEffect(() => {
+    void (async () => {
+      const data = await getCommunityPosts();
+      setPosts(data);
+    })();
+  }, []);
+
+  const toggleLike = async (postId: number) => {
+    const updated = await toggleCommunityLike(postId);
+    setPosts((prev) => prev.map((p) => (p.id === postId ? updated : p)));
   };
 
   return (
@@ -32,7 +29,7 @@ export default function Community() {
         </div>
 
         <div className="space-y-4">
-          {communityPosts.map((post, i) => (
+          {posts.map((post, i) => (
             <motion.div
               key={post.id}
               initial={{ opacity: 0, y: 12 }}
@@ -60,11 +57,11 @@ export default function Community() {
                   <button onClick={() => toggleLike(post.id)} className="flex items-center gap-1.5">
                     <motion.div whileTap={{ scale: 1.3 }} transition={{ type: 'spring', stiffness: 500, damping: 15 }}>
                       <Heart
-                        className={`w-6 h-6 transition-colors ${likedPosts.has(post.id) ? 'fill-primary text-primary' : 'text-foreground'}`}
+                        className={`w-6 h-6 transition-colors ${post.liked ? 'fill-primary text-primary' : 'text-foreground'}`}
                         strokeWidth={1.5}
                       />
                     </motion.div>
-                    <span className="text-sm font-bold text-foreground">{likeCounts[post.id]}</span>
+                    <span className="text-sm font-bold text-foreground">{post.likes}</span>
                   </button>
                   <button className="flex items-center gap-1.5 text-foreground">
                     <MessageCircle className="w-5 h-5" strokeWidth={1.5} />

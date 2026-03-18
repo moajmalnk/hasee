@@ -67,3 +67,85 @@
     text-wrap: balance;
   }
 }
+
+@layer utilities {
+  @keyframes flowerBurst {
+    0% {
+      opacity: 1;
+      transform: translate(-50%, -50%) translate(0px, 0px) rotate(0deg) scale(0.2);
+    }
+    100% {
+      opacity: 0;
+      transform: translate(-50%, -50%) translate(var(--dx), var(--dy)) rotate(var(--rot)) scale(var(--s));
+    }
+  }
+
+  .flowerParticle {
+    position: absolute;
+    left: 50%;
+    top: 35%;
+    border-radius: 9999px;
+    background:
+      radial-gradient(circle at 50% 18%, #ffe9fb 0 26%, transparent 27%),
+      radial-gradient(circle at 50% 82%, #ffe9fb 0 26%, transparent 27%),
+      radial-gradient(circle at 18% 50%, #ffd2f0 0 26%, transparent 27%),
+      radial-gradient(circle at 82% 50%, #ffd2f0 0 26%, transparent 27%),
+      radial-gradient(circle at 50% 50%, #ffd45a 0 18%, transparent 19%),
+      radial-gradient(circle at 50% 50%, rgba(225, 0, 111, 0.28) 0 42%, transparent 43%);
+    box-shadow:
+      0 0 0 2px rgba(255, 255, 255, 0.2) inset,
+      0 12px 28px rgba(225, 0, 111, 0.18);
+    filter: saturate(1.25);
+    will-change: transform, opacity;
+    animation: flowerBurst var(--dur) ease-out var(--delay) forwards;
+    pointer-events: none;
+  }
+
+  .copyBurstRing {
+    position: absolute;
+    inset: -12px;
+    border-radius: 9999px;
+    pointer-events: none;
+    animation: copyRing 900ms ease-out forwards;
+    opacity: 0;
+    background:
+      radial-gradient(circle, rgba(255, 255, 255, 0.55) 0 12%, transparent 13%),
+      conic-gradient(
+        from 180deg,
+        rgba(255, 86, 200, 0.55),
+        rgba(90, 255, 185, 0.45),
+        rgba(80, 160, 255, 0.45),
+        rgba(255, 206, 86, 0.5),
+        rgba(255, 86, 200, 0.55)
+      );
+    -webkit-mask: radial-gradient(transparent 55%, #000 56%);
+    mask: radial-gradient(transparent 55%, #000 56%);
+  }
+
+  @keyframes copyRing {
+    0% {
+      opacity: 0.9;
+      transform: scale(0.65);
+      filter: blur(0px);
+    }
+    60% {
+      opacity: 0.7;
+      transform: scale(1.05);
+      filter: blur(0.3px);
+    }
+    100% {
+      opacity: 0;
+      transform: scale(1.18);
+      filter: blur(0.6px);
+    }
+  }
+
+  /* Hide scrollbar while keeping horizontal scroll enabled */
+  .no-scrollbar {
+    -ms-overflow-style: none; /* IE/Edge */
+    scrollbar-width: none; /* Firefox */
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none; /* Chrome/Safari */
+  }
+}

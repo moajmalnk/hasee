@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import type { CSSProperties } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Heart, MessageCircle, ChevronLeft, Star, Share2, Camera, X } from 'lucide-react';
@@ -6,23 +7,77 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { products } from '@/data/products';
-import { mockReviews, productLikes } from '@/data/mockData';
+import type { Review } from '@/data/mockData';
 import { toast } from 'sonner';
+import { getApprovedReviewsByProductId, getProductLikeState, submitReview, toggleProductLike } from '@/services/mockApi';
 
 const sizes = ['S', 'M', 'L', 'XL', 'XXL', '3XL'];
 
 export default function ProductDetail() {
   const { id } = useParams();
-  const product = products.find(p => p.id === Number(id));
+  const productId = Number(id);
+  const product = products.find(p => p.id === productId);
   const [liked, setLiked] = useState(false);
-  const [likeCount, setLikeCount] = useState(productLikes[Number(id)] || 0);
+  const [likeCount, setLikeCount] = useState(0);
   const [selectedSize, setSelectedSize] = useState('L');
   const [selectedImage, setSelectedImage] = useState(0);
   const [reviewRating, setReviewRating] = useState(0);
   const [reviewText, setReviewText] = useState('');
   const [reviewOpen, setReviewOpen] = useState(false);
 
-  const reviews = mockReviews.filter(r => r.productId === Number(id) && r.approved);
+  const [reviews, setReviews] = useState<Review[]>([]);
+
+  type FlowerParticle = {
+    id: number;
+    dx: number;
+    dy: number;
+    delay: number;
+    dur: number;
+    rot: number;
+    scale: number;
+    size: number;
+  };
+  const [flowerParticles, setFlowerParticles] = useState<FlowerParticle[]>([]);
+
+  const triggerFiveStarBurst = () => {
+    const count = 18;
+    const base = Date.now();
+
+    const parts: FlowerParticle[] = Array.from({ length: count }).map((_, i) => {
+      const angle = (Math.PI * 2 * i) / count + (Math.random() - 0.5) * 0.45;
+      const radius = 40 + Math.random() * 70;
+      return {
+        id: base + i,
+        dx: Math.cos(angle) * radius,
+        dy: Math.sin(angle) * radius - 10 - Math.random() * 25,
+        delay: Math.random() * 0.12,
+        dur: 0.9 + Math.random() * 0.35,
+        rot: Math.random() * 320 - 160,
+        scale: 0.6 + Math.random() * 1.1,
+        size: 10 + Math.random() * 12,
+      };
+    });
+
+    // Store particles for a short window; animation is CSS-driven.
+    setFlowerParticles(parts);
+    window.setTimeout(() => setFlowerParticles([]), 1400);
+  };
+
+  useEffect(() => {
+    if (!product) return;
+    void (async () => {
+      try {
+        const likeState = await getProductLikeState(productId);
+        setLiked(likeState.liked);
+        setLikeCount(likeState.likeCount);
+
+        const approved = await getApprovedReviewsByProductId(productId);
+        setReviews(approved);
+      } catch {
+        toast.error("Failed to load product data (mock)");
+      }
+    })();
+  }, [productId, product]);
 
   // Mock multiple images
   const images = product ? [
@@ -39,9 +94,14 @@ export default function ProductDetail() {
     );
   }
 
-  const toggleLike = () => {
-    setLiked(!liked);
-    setLikeCount(prev => liked ? prev - 1 : prev + 1);
+  const toggleLike = async () => {
+    try {
+      const next = await toggleProductLike(productId);
+      setLiked(next.liked);
+      setLikeCount(next.likeCount);
+    } catch {
+      toast.error("Failed to like (mock)");
+    }
   };
 
   const shareToWhatsApp = () => {
@@ -49,12 +109,35 @@ export default function ProductDetail() {
     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
   };
 
-  const submitReview = () => {
-    if (reviewRating === 0) { toast.error('Please select a rating'); return; }
-    toast.success('Review submitted! It will appear after approval.');
-    setReviewOpen(false);
-    setReviewRating(0);
-    setReviewText('');
+  const onSubmitReview = async () => {
+    if (reviewRating === 0) {
+      toast.error('Please select a rating');
+      return;
+    }
+    if (!reviewText.trim()) {
+      toast.error('Please write your review');
+      return;
+    }
+
+    try {
+      await submitReview({
+        productId,
+        userName: "Hasee User",
+        rating: reviewRating,
+        comment: reviewText,
+        verified: true,
+      });
+
+      toast.success('Review submitted! It will appear after approval.');
+      setReviewOpen(false);
+      setReviewRating(0);
+      setReviewText('');
+
+      const approved = await getApprovedReviewsByProductId(productId);
+      setReviews(approved);
+    } catch {
+      toast.error("Failed to submit review (mock)");
+    }
   };
 
   const fabricInfo: Record<string, string> = {
@@ -182,10 +265,16 @@ export default function ProductDetail() {
                 <div className="space-y-4 pt-2">
                   {/* Star Rating */}
                   <div>
-                    <p className="text-xs font-bold text-foreground mb-2">Your Rating</p>
-                    <div className="flex gap-1">
+                    <div className="relative">
+                      <div className="flex gap-1 justify-center">
                       {[1, 2, 3, 4, 5].map(star => (
-                        <button key={star} onClick={() => setReviewRating(star)}>
+                        <button
+                          key={star}
+                          onClick={() => {
+                            setReviewRating(star);
+                            if (star === 5) triggerFiveStarBurst();
+                          }}
+                        >
                           <Star
                             className={`w-7 h-7 transition-colors ${
                               star <= reviewRating ? 'fill-warning text-warning' : 'text-muted-foreground/30'
@@ -194,6 +283,29 @@ export default function ProductDetail() {
                           />
                         </button>
                       ))}
+                      </div>
+                      {flowerParticles.length > 0 && (
+                        <div className="absolute inset-0 pointer-events-none">
+                          {flowerParticles.map((p) => (
+                            <span
+                              key={p.id}
+                              className="flowerParticle"
+                              style={
+                                {
+                                  width: p.size,
+                                  height: p.size,
+                                  ["--dx" as any]: `${p.dx}px`,
+                                  ["--dy" as any]: `${p.dy}px`,
+                                  ["--delay" as any]: `${p.delay}s`,
+                                  ["--dur" as any]: `${p.dur}s`,
+                                  ["--rot" as any]: `${p.rot}deg`,
+                                  ["--s" as any]: `${p.scale}`,
+                                } as CSSProperties
+                              }
+                            />
+                          ))}
+                        </div>
+                      )}
                     </div>
                   </div>
                   <Textarea
@@ -207,7 +319,7 @@ export default function ProductDetail() {
                     <Camera className="w-4 h-4 mr-2" strokeWidth={1.5} />
                     Upload Photo
                   </Button>
-                  <Button onClick={submitReview} className="w-full rounded-xl h-11 font-bold">
+                  <Button onClick={onSubmitReview} className="w-full rounded-xl h-11 font-bold">
                     Submit Review
                   </Button>
                 </div>

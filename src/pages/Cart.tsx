@@ -1,15 +1,75 @@
-import AppLayout from '@/components/layout/AppLayout';
-import { Button } from '@/components/ui/button';
-import { Upload, Copy, Ticket } from 'lucide-react';
-import { toast } from 'sonner';
-import { useState } from 'react';
+import AppLayout from "@/components/layout/AppLayout";
+import { Button } from "@/components/ui/button";
+import { Copy, Ticket, Upload } from "lucide-react";
+import { toast } from "sonner";
+import { useEffect, useMemo, useState } from "react";
+import { products } from "@/data/products";
+import type { MockCartItem } from "@/services/mockApi";
+import { applyCouponCode, getCart, placeOrder } from "@/services/mockApi";
 
 export default function Cart() {
-  const [coupon, setCoupon] = useState('');
+  const [coupon, setCoupon] = useState("");
+  const [cartItems, setCartItems] = useState<MockCartItem[]>([]);
+  const [couponDiscount, setCouponDiscount] = useState(0);
+  const [couponLabel, setCouponLabel] = useState<string | null>(null);
+  const [placing, setPlacing] = useState(false);
+  const [lastOrderId, setLastOrderId] = useState<string | null>(null);
+
+  useEffect(() => {
+    void (async () => {
+      try {
+        const items = await getCart();
+        setCartItems(items);
+      } catch {
+        toast.error("Failed to load cart (mock)");
+      }
+    })();
+  }, []);
+
+  const subtotal = useMemo(() => {
+    return cartItems.reduce((sum, item) => {
+      const p = products.find((pp) => pp.id === item.productId);
+      return sum + (p?.price ?? 0) * item.qty;
+    }, 0);
+  }, [cartItems]);
+
+  const total = useMemo(() => Math.max(0, subtotal - couponDiscount), [subtotal, couponDiscount]);
 
   const copyUPI = () => {
     navigator.clipboard.writeText('9947428821');
     toast.success('UPI number copied!');
+  };
+
+  const applyCoupon = async () => {
+    const res = await applyCouponCode({ code: coupon, subtotal });
+    if (res.ok) {
+      setCouponDiscount(res.discount);
+      setCouponLabel(res.label);
+      toast.success(`Coupon applied: ${res.label}`);
+      return;
+    }
+    setCouponDiscount(0);
+    setCouponLabel(null);
+    toast.error((res as { message: string }).message);
+  };
+
+  const onPlaceOrder = async () => {
+    setPlacing(true);
+    setLastOrderId(null);
+    try {
+      const res = await placeOrder({ couponCode: couponLabel ? coupon : undefined });
+      setLastOrderId(res.id);
+      setCoupon("");
+      setCouponDiscount(0);
+      setCouponLabel(null);
+
+      setCartItems(await getCart());
+      toast.success(`Order placed: ${res.id}`);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to place order (mock)");
+    } finally {
+      setPlacing(false);
+    }
   };
 
   return (
@@ -17,16 +77,32 @@ export default function Cart() {
       <div className="p-4 space-y-6">
         <h1 className="text-2xl font-bold text-foreground">Checkout</h1>
 
-        {/* Cart Item */}
-        <div className="bg-card border border-border rounded-2xl p-4 flex gap-4">
-          <div className="w-20 h-28 rounded-xl bg-secondary overflow-hidden flex-shrink-0">
-            <img src="https://placehold.co/400x600/pink/white?text=Rayon+Maxi" alt="Rayon Maxi" className="w-full h-full object-cover" />
-          </div>
-          <div className="flex-1 min-w-0">
-            <h3 className="text-sm font-bold text-foreground">Premium Rayon Maxi</h3>
-            <p className="text-xs text-muted-foreground mt-1">Qty: 1</p>
-            <p className="text-lg font-bold text-foreground mt-2">₹380</p>
-          </div>
+        {/* Cart Items */}
+        <div className="space-y-3">
+          {cartItems.length === 0 ? (
+            <div className="bg-card border border-border rounded-2xl p-4 text-center text-muted-foreground text-sm">
+              Cart is empty (mock). Place an order to see it in Admin Dashboard.
+            </div>
+          ) : (
+            cartItems.map((item) => {
+              const p = products.find((pp) => pp.id === item.productId);
+              if (!p) return null;
+              return (
+                <div key={`${item.productId}:${item.size}`} className="bg-card border border-border rounded-2xl p-4 flex gap-4">
+                  <div className="w-20 h-28 rounded-xl bg-secondary overflow-hidden flex-shrink-0">
+                    <img src={p.image} alt={p.name} className="w-full h-full object-cover" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="text-sm font-bold text-foreground">{p.name}</h3>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Qty: {item.qty} • Size: {item.size}
+                    </p>
+                    <p className="text-lg font-bold text-foreground mt-2">₹{p.price * item.qty}</p>
+                  </div>
+                </div>
+              );
+            })
+          )}
         </div>
 
         {/* Coupon */}
@@ -43,7 +119,25 @@ export default function Cart() {
               placeholder="Enter code"
               className="flex-1 bg-secondary border-0 rounded-lg px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
             />
-            <Button size="sm" onClick={() => toast.success('Coupon applied!')}>Apply</Button>
+            <Button size="sm" onClick={applyCoupon}>Apply</Button>
+          </div>
+
+          {couponLabel && (
+            <div className="text-xs text-muted-foreground pt-1">
+              Discount: <span className="font-bold text-foreground">₹{couponDiscount}</span> • {couponLabel}
+            </div>
+          )}
+        </div>
+
+        {/* Price Summary */}
+        <div className="bg-muted rounded-2xl p-4 border border-border space-y-2">
+          <div className="flex justify-between text-sm">
+            <span className="text-muted-foreground">Subtotal</span>
+            <span className="font-bold text-foreground">₹{subtotal}</span>
+          </div>
+          <div className="flex justify-between text-sm">
+            <span className="text-muted-foreground">Total</span>
+            <span className="font-black text-foreground text-lg">₹{total}</span>
           </div>
         </div>
 
@@ -79,7 +173,19 @@ export default function Cart() {
           </label>
         </div>
 
-        <Button className="w-full h-12 rounded-xl text-base">Place Order — ₹380</Button>
+        {lastOrderId && (
+          <div className="text-center text-sm text-muted-foreground">
+            Last order: <span className="font-bold text-foreground">{lastOrderId}</span> (Pending in Admin)
+          </div>
+        )}
+
+        <Button
+          className="w-full h-12 rounded-xl text-base"
+          onClick={onPlaceOrder}
+          disabled={placing || cartItems.length === 0}
+        >
+          {placing ? "Placing..." : `Place Order — ₹${total}`}
+        </Button>
       </div>
     </AppLayout>
   );
