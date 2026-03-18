@@ -4,32 +4,41 @@ import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { products } from '@/data/products';
 import type { Review } from '@/data/mockData';
-import type { MockOrder } from '@/services/mockApi';
+import type { MockOrder, RewardsData } from '@/services/mockApi';
 import {
   approveOrder,
   approveReview as mockApproveReview,
   deleteReview as mockDeleteReview,
   getAllReviews,
+  getRewardsData,
   getOrders,
   getProductLikeCounts,
   rejectOrder,
+  setLeadRefunded,
 } from '@/services/mockApi';
 
-const tabs = ['Orders', 'Reviews', 'Analytics'];
+const tabs = ['Orders', 'Reviews', 'Analytics', 'Refunds'];
 
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState('Orders');
   const [reviews, setReviews] = useState<Review[]>([]);
   const [orders, setOrders] = useState<MockOrder[]>([]);
   const [productLikeCounts, setProductLikeCounts] = useState<Record<number, number>>({});
+  const [rewards, setRewards] = useState<RewardsData | null>(null);
 
   useEffect(() => {
     void (async () => {
       try {
-        const [allReviews, allOrders, likeCounts] = await Promise.all([getAllReviews(), getOrders(), getProductLikeCounts()]);
+        const [allReviews, allOrders, likeCounts, rewardsRes] = await Promise.all([
+          getAllReviews(),
+          getOrders(),
+          getProductLikeCounts(),
+          getRewardsData(),
+        ]);
         setReviews(allReviews);
         setOrders(allOrders);
         setProductLikeCounts(likeCounts);
+        setRewards(rewardsRes);
       } catch {
         toast.error("Failed to load admin dashboard data (mock)");
       }
@@ -65,6 +74,17 @@ export default function AdminDashboard() {
     await rejectOrder(orderId);
     toast.error(`Order ${orderId} rejected`);
     setOrders(await getOrders());
+  };
+
+  const refreshRewards = async () => {
+    const res = await getRewardsData();
+    setRewards(res);
+  };
+
+  const onToggleRefund = async (phone: string, refunded: boolean) => {
+    await setLeadRefunded(phone, refunded);
+    toast.success(refunded ? "Lead marked as refunded" : "Refund removed");
+    await refreshRewards();
   };
 
   return (
@@ -222,6 +242,93 @@ export default function AdminDashboard() {
                 </div>
               </div>
             ))}
+          </section>
+        )}
+
+        {/* Refunds Tab */}
+        {activeTab === 'Refunds' && (
+          <section className="space-y-4">
+            <div className="bg-card border border-border rounded-2xl p-4">
+              <h2 className="font-bold text-foreground">Refund Tracker</h2>
+              <p className="text-sm text-muted-foreground mt-1">
+                Progress recalculates from computed paid referrals (Paid excludes Refunded).
+              </p>
+              <div className="mt-3 flex items-center justify-between">
+                <div>
+                  <p className="text-[10px] text-muted-foreground uppercase font-bold">Paid Progress</p>
+                  <p className="text-xl font-black text-foreground mt-1">
+                    {rewards ? `${rewards.referralCount}/${rewards.target}` : 'Loading...'}
+                  </p>
+                </div>
+                <div className="text-right">
+                  <p className="text-[10px] text-muted-foreground uppercase font-bold">Refunded Members</p>
+                  <p className="text-xl font-black text-foreground mt-1">
+                    {rewards ? rewards.leads.filter((l) => l.status === 'Refunded').length : 0}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {!rewards ? (
+              <div className="bg-card border border-border rounded-2xl p-4 text-muted-foreground text-sm text-center">
+                Loading refunds...
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {rewards.leads.map((lead) => (
+                  <div
+                    key={lead.phone}
+                    className="flex items-center justify-between gap-3 p-3 bg-card border border-border rounded-xl"
+                  >
+                    <div className="min-w-0">
+                      <p className="text-sm font-bold text-foreground truncate">{lead.phone}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {lead.status}
+                        {lead.deliveryDate ? ` • delivered: ${new Date(lead.deliveryDate).toLocaleDateString()}` : ''}
+                      </p>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <span
+                        className={`text-[10px] px-2 py-1 rounded-full font-bold uppercase whitespace-nowrap ${
+                          lead.status === 'Paid'
+                            ? 'bg-whatsapp/10 text-whatsapp border border-whatsapp/20'
+                            : lead.status === 'Pending'
+                              ? 'bg-warning/10 text-warning border border-warning/20'
+                              : lead.status === 'Refunded'
+                                ? 'bg-destructive/10 text-destructive border border-destructive/20'
+                                : 'bg-muted text-muted-foreground border border-border'
+                        }`}
+                      >
+                        {lead.status}
+                      </span>
+
+                      {lead.status === 'Paid' && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="rounded-xl text-xs font-bold"
+                          onClick={() => void onToggleRefund(lead.phone, true)}
+                        >
+                          Mark Refunded
+                        </Button>
+                      )}
+
+                      {lead.status === 'Refunded' && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="rounded-xl text-xs font-bold"
+                          onClick={() => void onToggleRefund(lead.phone, false)}
+                        >
+                          Remove Refund
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </section>
         )}
       </div>

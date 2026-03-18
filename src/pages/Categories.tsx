@@ -28,7 +28,7 @@ export default function Categories() {
             </button>
           ))}
         </div>
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
           {filtered.map((product, i) => (
             <ProductCard key={product.id} product={product} index={i} />
           ))}

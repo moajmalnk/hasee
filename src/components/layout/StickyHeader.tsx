@@ -1,18 +1,20 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { Gift, MessageCircle } from "lucide-react";
+import { Gift, MessageCircle, ShoppingCart } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import type { RewardsData } from "@/services/mockApi";
-import { getRewardsData } from "@/services/mockApi";
+import { getCart, getRewardsData, type MockCartItem } from "@/services/mockApi";
 import { Button } from "@/components/ui/button";
 
-function StatusBadge({ status }: { status: "Paid" | "Pending" | "Clicked" }) {
+function StatusBadge({ status }: { status: "Paid" | "Pending" | "Clicked" | "Refunded" }) {
   const className =
     status === "Paid"
       ? "bg-whatsapp/10 text-whatsapp"
       : status === "Pending"
         ? "bg-warning/10 text-warning"
-        : "bg-muted text-muted-foreground";
+        : status === "Refunded"
+          ? "bg-destructive/10 text-destructive"
+          : "bg-muted text-muted-foreground";
 
   return (
     <span className={`text-[10px] px-2 py-1 rounded-full font-bold uppercase ${className}`}>
@@ -23,6 +25,7 @@ function StatusBadge({ status }: { status: "Paid" | "Pending" | "Clicked" }) {
 
 export default function StickyHeader() {
   const [rewards, setRewards] = useState<RewardsData | null>(null);
+  const [cartCount, setCartCount] = useState(0);
 
   useEffect(() => {
     void (async () => {
@@ -35,13 +38,41 @@ export default function StickyHeader() {
     })();
   }, []);
 
+  useEffect(() => {
+    let cancelled = false;
+
+    const fetchCartCount = async () => {
+      try {
+        const items: MockCartItem[] = await getCart();
+        const total = items.reduce((sum, it) => sum + (it.qty ?? 0), 0);
+        if (!cancelled) setCartCount(total);
+      } catch {
+        // Keep header usable if mock cart fails.
+        if (!cancelled) setCartCount(0);
+      }
+    };
+
+    // Initial load.
+    void fetchCartCount();
+
+    // Keep the header in sync when cart changes on other pages.
+    const interval = window.setInterval(() => {
+      void fetchCartCount();
+    }, 4000);
+
+    return () => {
+      cancelled = true;
+      window.clearInterval(interval);
+    };
+  }, []);
+
   const openWhatsApp = () => {
     window.open('https://wa.me/919947428821?text=Hi! I need help with Hasee Maxi.', '_blank');
   };
 
   return (
     <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-lg border-b border-border">
-      <div className="flex items-center justify-between px-4 h-14">
+      <div className="flex items-center justify-between px-4 sm:px-6 lg:px-8 h-14 max-w-5xl mx-auto w-full">
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center">
             <span className="text-primary-foreground text-xs font-black">H</span>
@@ -107,12 +138,25 @@ export default function StickyHeader() {
             </PopoverContent>
           </Popover>
 
-          <button
-            onClick={openWhatsApp}
-            className="w-10 h-10 rounded-full bg-whatsapp flex items-center justify-center shadow-sm active:scale-95 transition-transform duration-200"
-          >
-            <MessageCircle className="w-5 h-5 text-whatsapp-foreground" strokeWidth={1.5} />
-          </button>
+          {cartCount > 0 ? (
+            <Link
+              to="/cart"
+              aria-label={`Cart: ${cartCount} item(s)`}
+              className="relative w-10 h-10 rounded-full bg-primary flex items-center justify-center shadow-sm active:scale-95 transition-transform duration-200"
+            >
+              <ShoppingCart className="w-5 h-5 text-primary-foreground" strokeWidth={1.5} />
+              <span className="absolute -top-1 -right-1 min-w-5 h-5 px-1 rounded-full bg-background border border-border text-[10px] font-extrabold flex items-center justify-center">
+                {cartCount > 99 ? "99+" : cartCount}
+              </span>
+            </Link>
+          ) : (
+            <button
+              onClick={openWhatsApp}
+              className="w-10 h-10 rounded-full bg-whatsapp flex items-center justify-center shadow-sm active:scale-95 transition-transform duration-200"
+            >
+              <MessageCircle className="w-5 h-5 text-whatsapp-foreground" strokeWidth={1.5} />
+            </button>
+          )}
         </div>
       </div>
     </header>

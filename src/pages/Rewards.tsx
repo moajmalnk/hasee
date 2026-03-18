@@ -36,6 +36,15 @@ export default function Rewards() {
   const { referralCount, target, referralLink, leads } = data;
   const progress = (referralCount / target) * 100;
 
+  const MS_PER_DAY = 24 * 60 * 60 * 1000;
+  const formatDate = (iso?: string) => {
+    if (!iso) return "—";
+    const d = new Date(iso);
+    if (Number.isNaN(d.getTime())) return "—";
+    return d.toLocaleDateString();
+  };
+  const addDaysISO = (iso: string, days: number) => new Date(new Date(iso).getTime() + MS_PER_DAY * days).toISOString();
+
   const triggerCopyBurst = () => {
     setCopyBurstId((v) => v + 1);
     const count = 16;
@@ -128,12 +137,12 @@ export default function Rewards() {
                           height: p.size,
                           left: "50%",
                           top: "50%",
-                          ["--dx" as any]: `${p.dx}px`,
-                          ["--dy" as any]: `${p.dy}px`,
-                          ["--delay" as any]: `${p.delay}s`,
-                          ["--dur" as any]: `${p.dur}s`,
-                          ["--rot" as any]: `${p.rot}deg`,
-                          ["--s" as any]: `${p.scale}`,
+                          ["--dx"]: `${p.dx}px`,
+                          ["--dy"]: `${p.dy}px`,
+                          ["--delay"]: `${p.delay}s`,
+                          ["--dur"]: `${p.dur}s`,
+                          ["--rot"]: `${p.rot}deg`,
+                          ["--s"]: `${p.scale}`,
                         } as CSSProperties
                       }
                     />
@@ -154,23 +163,66 @@ export default function Rewards() {
           <div className="p-4 border-b border-border bg-secondary/50">
             <h2 className="font-bold text-sm text-foreground">Recent Activity</h2>
           </div>
-          <div className="divide-y divide-border">
-            {leads.map((lead, i) => (
-              <div key={i} className="p-4 flex justify-between items-center">
-                <span className="text-sm font-medium text-muted-foreground font-mono">{lead.phone}</span>
-                <span
-                  className={`text-[10px] px-2 py-1 rounded-full font-bold uppercase ${
-                    lead.status === 'Paid'
-                      ? 'bg-whatsapp/10 text-whatsapp'
-                      : lead.status === 'Pending'
-                      ? 'bg-warning/10 text-warning'
-                      : 'bg-muted text-muted-foreground'
-                  }`}
-                >
-                  {lead.status}
-                </span>
-              </div>
-            ))}
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-sm">
+              <thead className="bg-secondary/40">
+                <tr>
+                  <th className="p-4 pb-3 text-xs font-bold text-muted-foreground uppercase tracking-wider">Name</th>
+                  <th className="p-4 pb-3 text-xs font-bold text-muted-foreground uppercase tracking-wider">Phone</th>
+                  <th className="p-4 pb-3 text-xs font-bold text-muted-foreground uppercase tracking-wider">Purchase</th>
+                  <th className="p-4 pb-3 text-xs font-bold text-muted-foreground uppercase tracking-wider">Reward</th>
+                  <th className="p-4 pb-3 text-xs font-bold text-muted-foreground uppercase tracking-wider">Status</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border">
+                {leads.map((lead, i) => {
+                  const purchase = formatDate(lead.deliveryDate);
+                  const reward =
+                    lead.deliveryDate
+                      ? lead.status === "Paid"
+                        ? `Approved ${formatDate(addDaysISO(lead.deliveryDate, 15))}`
+                        : lead.status === "Pending"
+                          ? `Unlocks ${formatDate(addDaysISO(lead.deliveryDate, 15))}`
+                          : lead.status === "Refunded"
+                            ? `Cancelled ${formatDate(addDaysISO(lead.deliveryDate, 15))}`
+                            : "—"
+                      : "Not delivered yet";
+
+                  const statusClass =
+                    lead.status === "Paid"
+                      ? "bg-whatsapp/10 text-whatsapp border border-whatsapp/20"
+                      : lead.status === "Pending"
+                        ? "bg-warning/10 text-warning border border-warning/20"
+                        : lead.status === "Refunded"
+                          ? "bg-destructive/10 text-destructive border border-destructive/20"
+                          : "bg-muted text-muted-foreground border border-border";
+
+                  return (
+                    <tr key={i} className="align-top">
+                      <td className="p-4">
+                        <div className="font-bold text-foreground truncate max-w-[220px]">{lead.name}</div>
+                      </td>
+                      <td className="p-4">
+                        <div className="font-medium text-muted-foreground font-mono truncate max-w-[150px]">
+                          {lead.phone}
+                        </div>
+                      </td>
+                      <td className="p-4">
+                        <div className="text-muted-foreground">{purchase}</div>
+                      </td>
+                      <td className="p-4">
+                        <div className="text-muted-foreground">{reward}</div>
+                      </td>
+                      <td className="p-4">
+                        <span className={`inline-flex items-center justify-center text-[10px] px-2 py-1 rounded-full font-bold uppercase whitespace-nowrap ${statusClass}`}>
+                          {lead.status}
+                        </span>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
           </div>
         </div>
       </div>

@@ -33,7 +33,10 @@ export default function Settings() {
   const onSave = async () => {
     setSaving(true);
     try {
-      await updateSettings(settings);
+      const res = await updateSettings(settings);
+      if (typeof document !== "undefined") {
+        document.documentElement.classList.toggle("dark", !!res.darkMode);
+      }
       toast.success("Settings saved (mock)");
     } catch {
       toast.error("Failed to save settings (mock)");
@@ -85,23 +88,6 @@ export default function Settings() {
               checked={settings.darkMode}
               onCheckedChange={(v) => setSettings((s) => (s ? { ...s, darkMode: v } : s))}
             />
-          </div>
-
-          <div className="space-y-2 p-3 rounded-xl bg-secondary/50 border border-border/50">
-            <p className="text-sm font-bold text-foreground">Language</p>
-            <select
-              value={settings.language}
-              onChange={(e) =>
-                setSettings((s) =>
-                  s ? { ...s, language: e.target.value as SettingsData["language"] } : s
-                )
-              }
-              className="w-full bg-secondary border border-border rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
-              aria-label="Language"
-            >
-              <option value="English">English</option>
-              <option value="Hindi">Hindi</option>
-            </select>
           </div>
         </div>
 

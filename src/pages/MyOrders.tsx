@@ -4,7 +4,7 @@ import { getOrders } from "@/services/mockApi";
 import type { MockOrder } from "@/services/mockApi";
 import { products } from "@/data/products";
 import { Link } from "react-router-dom";
-import { ShoppingBag } from "lucide-react";
+import { CheckCircle2, Clock3, Package, ShoppingBag, Truck, XCircle } from "lucide-react";
 
 function StatusBadge({ status }: { status: MockOrder["status"] }) {
   const className =
@@ -26,6 +26,14 @@ function StatusBadge({ status }: { status: MockOrder["status"] }) {
 export default function MyOrders() {
   const [orders, setOrders] = useState<MockOrder[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const formatDate = (iso: string) => {
+    try {
+      return new Date(iso).toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" });
+    } catch {
+      return iso;
+    }
+  };
 
   useEffect(() => {
     void (async () => {
@@ -97,6 +105,78 @@ export default function MyOrders() {
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-muted-foreground">Order amount</span>
                   <span className="font-black text-foreground">₹{order.amount}</span>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3 pt-1">
+                  <div className="space-y-1">
+                    <p className="text-[10px] uppercase tracking-widest text-muted-foreground font-bold">Tracking</p>
+                    <p className="text-sm font-bold text-foreground truncate">{order.trackingCode}</p>
+                  </div>
+                  <div className="space-y-1 text-right">
+                    <p className="text-[10px] uppercase tracking-widest text-muted-foreground font-bold">Expected delivery</p>
+                    <p className="text-sm font-bold text-foreground">{formatDate(order.expectedDeliveryAt)}</p>
+                  </div>
+                </div>
+
+                <div className="bg-secondary/50 border border-border rounded-2xl p-3">
+                  {(() => {
+                    const expectedTs = new Date(order.expectedDeliveryAt).getTime();
+                    const delivered = order.status === "Approved" && Date.now() >= expectedTs;
+
+                    const steps = [
+                      {
+                        key: "placed",
+                        label: "Order placed",
+                        done: true,
+                        Icon: Clock3,
+                      },
+                      {
+                        key: "approved",
+                        label: "Approved",
+                        done: order.status === "Approved",
+                        Icon: CheckCircle2,
+                      },
+                      {
+                        key: "delivered",
+                        label: delivered ? "Delivered" : order.status === "Approved" ? "In delivery" : "Cancelled",
+                        done: delivered,
+                        Icon: order.status === "Rejected" ? XCircle : Truck,
+                      },
+                    ] as const;
+
+                    return (
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-3">
+                          {steps.map((s, idx) => (
+                            <div key={s.key} className="flex items-center gap-2 min-w-0">
+                              <s.Icon
+                                className={`w-4 h-4 ${
+                                  s.done ? "text-whatsapp" : "text-muted-foreground"
+                                }`}
+                                strokeWidth={1.8}
+                              />
+                              <p className="text-[10px] font-bold text-muted-foreground whitespace-nowrap">
+                                {s.label}
+                              </p>
+                              {idx !== steps.length - 1 && (
+                                <div className="h-px flex-1 bg-border" />
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                        <div className="flex items-center justify-between text-xs text-muted-foreground pt-1">
+                          <span>Placed on: {formatDate(order.createdAt)}</span>
+                          {order.status === "Rejected" ? (
+                            <span className="text-destructive font-bold">Payment/Verification rejected</span>
+                          ) : delivered ? (
+                            <span className="text-whatsapp font-bold">Delivered successfully</span>
+                          ) : (
+                            <span className="font-bold">ETA: {formatDate(order.expectedDeliveryAt)}</span>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })()}
                 </div>
               </div>
             ))}

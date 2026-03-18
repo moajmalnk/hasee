@@ -15,6 +15,13 @@ import MyOrders from "./pages/MyOrders.tsx";
 import Wishlist from "./pages/Wishlist.tsx";
 import Settings from "./pages/Settings.tsx";
 import NotFound from "./pages/NotFound.tsx";
+import Login from "./pages/Login.tsx";
+import Onboarding from "./pages/Onboarding.tsx";
+import ClaimReward from "./pages/ClaimReward.tsx";
+import RefundPolicy from "./pages/RefundPolicy.tsx";
+import TermsOfUse from "./pages/TermsOfUse.tsx";
+import Comments from "./pages/Comments.tsx";
+import PrivacyPolicy from "./pages/PrivacyPolicy.tsx";
 
 const queryClient = new QueryClient();
 
@@ -36,6 +43,13 @@ const App = () => (
           <Route path="/wishlist" element={<Wishlist />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/onboarding" element={<Onboarding />} />
+          <Route path="/claim-reward" element={<ClaimReward />} />
+          <Route path="/refund-policy" element={<RefundPolicy />} />
+          <Route path="/terms-of-use" element={<TermsOfUse />} />
+          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+          <Route path="/comments/:productId" element={<Comments />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

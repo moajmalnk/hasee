@@ -52,6 +52,46 @@
     --sidebar-border: 340 20% 90%;
     --sidebar-ring: 340 82% 52%;
   }
+
+  /* Tailwind `dark` mode overrides for shadcn-style CSS variables */
+  .dark {
+    --background: 222 47% 11%;
+    --foreground: 210 40% 98%;
+
+    --card: 222 47% 11%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 222 47% 11%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 340 82% 52%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 217 32% 17%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 217 32% 17%;
+    --muted-foreground: 215 16% 65%;
+
+    --accent: 217 32% 17%;
+    --accent-foreground: 210 40% 98%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 217 32% 17%;
+    --input: 217 32% 17%;
+    --ring: 340 82% 52%;
+
+    --sidebar-background: 222 47% 11%;
+    --sidebar-foreground: 210 40% 98%;
+    --sidebar-primary: 340 82% 52%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 217 32% 17%;
+    --sidebar-accent-foreground: 340 82% 52%;
+    --sidebar-border: 217 32% 17%;
+    --sidebar-ring: 340 82% 52%;
+  }
 }
 
 @layer base {
