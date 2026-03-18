@@ -9,6 +9,8 @@ import Rewards from "./pages/Rewards.tsx";
 import Cart from "./pages/Cart.tsx";
 import Profile from "./pages/Profile.tsx";
 import AdminDashboard from "./pages/AdminDashboard.tsx";
+import ProductDetail from "./pages/ProductDetail.tsx";
+import Community from "./pages/Community.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -24,6 +26,8 @@ const App = () => (
           <Route path="/categories" element={<Categories />} />
           <Route path="/rewards" element={<Rewards />} />
           <Route path="/cart" element={<Cart />} />
+          <Route path="/community" element={<Community />} />
+          <Route path="/product/:id" element={<ProductDetail />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
           <Route path="*" element={<NotFound />} />
