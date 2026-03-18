@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { CheckCircle, XCircle, Star, TrendingUp, Trash2 } from 'lucide-react';
+import { CheckCircle, XCircle, Star, TrendingUp, Trash2, Heart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { mockReviews } from '@/data/mockData';
