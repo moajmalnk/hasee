@@ -75,6 +75,8 @@ export type DeliveryAddress = {
 };
 
 const MOCK_LATENCY_MS = 240;
+// Cart UI needs to feel snappy; keep cart operations faster than other mock endpoints.
+const MOCK_CART_LATENCY_MS = 50;
 const sleep = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms));
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
 
@@ -625,12 +627,12 @@ export async function rejectOrder(orderId: string): Promise<void> {
 }
 
 export async function getCart(): Promise<MockCartItem[]> {
-  await sleep(MOCK_LATENCY_MS);
+  await sleep(MOCK_CART_LATENCY_MS);
   return clone(cartState);
 }
 
 export async function addToCart(input: { productId: number; qty: number; size: string }): Promise<MockCartItem[]> {
-  await sleep(MOCK_LATENCY_MS);
+  await sleep(MOCK_CART_LATENCY_MS);
   const { productId, qty, size } = input;
   if (!productId || qty <= 0 || !size) throw new Error("Invalid cart input");
 
@@ -645,7 +647,7 @@ export async function addToCart(input: { productId: number; qty: number; size: s
 }
 
 export async function adjustCartItem(input: { productId: number; size: string; delta: number }): Promise<MockCartItem[]> {
-  await sleep(MOCK_LATENCY_MS);
+  await sleep(MOCK_CART_LATENCY_MS);
   const { productId, size, delta } = input;
 
   if (!productId || !size) throw new Error("Invalid cart input");

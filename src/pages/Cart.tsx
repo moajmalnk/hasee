@@ -17,6 +17,8 @@ export default function Cart() {
     return new URLSearchParams(location.search).get("placeOrder") === "1";
   }, [location.search]);
   const autoPlacedRef = useRef(false);
+  // Prevent out-of-order async cart mutations from overwriting the latest UI state.
+  const cartMutationSeq = useRef(0);
   const [coupon, setCoupon] = useState("");
   const [cartItems, setCartItems] = useState<MockCartItem[]>([]);
   const [couponDiscount, setCouponDiscount] = useState(0);
@@ -87,21 +89,36 @@ export default function Cart() {
   }, [location.search]);
 
   useEffect(() => {
-    if (!couponLabel || !coupon) return;
-    void (async () => {
-      try {
-        const res = await applyCouponCode({ code: coupon, subtotal });
-        if (res.ok) setCouponDiscount(res.discount);
-        else {
-          setCouponDiscount(0);
-          setCouponLabel(null);
-        }
-      } catch {
-        setCouponDiscount(0);
-        setCouponLabel(null);
-      }
-    })();
-  }, [cartItems, coupon, couponLabel, subtotal]);
+    // Show coupon discount immediately when the input matches known coupons.
+    // This keeps the UI accurate and avoids waiting on slow mock calls.
+    const code = coupon.trim().toUpperCase();
+
+    if (!code) {
+      setCouponDiscount(0);
+      setCouponLabel(null);
+      setCouponError(null);
+      return;
+    }
+
+    if (code === "SAVE10") {
+      setCouponDiscount(Math.round(subtotal * 0.1));
+      setCouponLabel("SAVE10 (10% OFF)");
+      setCouponError(null);
+      return;
+    }
+
+    if (code === "WELCOME50") {
+      setCouponDiscount(Math.min(50, Math.max(0, subtotal - 1)));
+      setCouponLabel("WELCOME50 (UP TO ₹50 OFF)");
+      setCouponError(null);
+      return;
+    }
+
+    // Unknown coupon text: clear any previously shown discount.
+    setCouponDiscount(0);
+    setCouponLabel(null);
+    setCouponError(null);
+  }, [coupon, subtotal]);
 
   useEffect(() => {
     return () => {
@@ -139,7 +156,35 @@ export default function Cart() {
   };
 
   const applyCoupon = async () => {
-    const res = await applyCouponCode({ code: coupon, subtotal });
+    const code = coupon.trim().toUpperCase();
+    if (!code) {
+      setCouponDiscount(0);
+      setCouponLabel(null);
+      setCouponError("Enter a coupon code");
+      return;
+    }
+
+    // Fast path: deterministic coupon rules.
+    if (code === "SAVE10") {
+      const discount = Math.round(subtotal * 0.1);
+      setCouponDiscount(discount);
+      setCouponLabel("SAVE10 (10% OFF)");
+      setCouponError(null);
+      toast.success(`Coupon applied: SAVE10 (10% OFF)`);
+      return;
+    }
+
+    if (code === "WELCOME50") {
+      const discount = Math.min(50, Math.max(0, subtotal - 1));
+      setCouponDiscount(discount);
+      setCouponLabel("WELCOME50 (UP TO ₹50 OFF)");
+      setCouponError(null);
+      toast.success(`Coupon applied: WELCOME50 (UP TO ₹50 OFF)`);
+      return;
+    }
+
+    // Fallback for any other code (keeps behavior aligned with mock API).
+    const res = await applyCouponCode({ code, subtotal });
     if (res.ok) {
       setCouponDiscount(res.discount);
       setCouponLabel(res.label);
@@ -147,6 +192,7 @@ export default function Cart() {
       toast.success(`Coupon applied: ${res.label}`);
       return;
     }
+
     setCouponDiscount(0);
     setCouponLabel(null);
     setCouponError((res as { message: string }).message);
@@ -154,19 +200,42 @@ export default function Cart() {
 
   const adjustQty = async (item: MockCartItem, delta: number) => {
     const key = `${item.productId}:${item.size}`;
-    if (adjustingKey === key) return;
+    // Serialize cart mutations to keep optimistic UI accurate.
+    if (adjustingKey != null) return;
+    const seq = ++cartMutationSeq.current;
+    const prev = cartItems;
     setAdjustingKey(key);
     try {
+      // Optimistic UI: update immediately for a snappy feel.
+      const applyDelta = (items: MockCartItem[]) => {
+        const idx = items.findIndex((ci) => ci.productId === item.productId && ci.size === item.size);
+        if (idx < 0) {
+          if (delta <= 0) return items; // no-op
+          return [{ productId: item.productId, qty: delta, size: item.size }, ...items];
+        }
+
+        const nextQty = items[idx].qty + delta;
+        if (nextQty <= 0) return items.filter((_, i) => i !== idx);
+        const next = [...items];
+        next[idx] = { ...next[idx], qty: nextQty };
+        return next;
+      };
+
+      setCartItems(applyDelta(prev));
+
       const items = await adjustCartItem({ productId: item.productId, size: item.size, delta });
-      setCartItems(items);
+      if (seq === cartMutationSeq.current) setCartItems(items);
     } catch {
       toast.error("Failed to update cart (mock)");
+      // Revert only if this mutation is still the latest one.
+      if (seq === cartMutationSeq.current) setCartItems(prev);
     } finally {
-      setAdjustingKey(null);
+      if (seq === cartMutationSeq.current) setAdjustingKey(null);
     }
   };
 
   const requestDeleteItem = (item: MockCartItem) => {
+    if (adjustingKey != null) return;
     setDeleteTarget(item);
     setDeleteOpen(true);
   };
@@ -174,17 +243,33 @@ export default function Cart() {
   const confirmDeleteItem = async () => {
     if (!deleteTarget) return;
     const key = `${deleteTarget.productId}:${deleteTarget.size}`;
+    const seq = ++cartMutationSeq.current;
+    const prev = cartItems;
     setDeletingKey(key);
     try {
+      const itemsOptimistic = (() => {
+        const idx = prev.findIndex((ci) => ci.productId === deleteTarget.productId && ci.size === deleteTarget.size);
+        if (idx < 0) return prev;
+        const nextQty = prev[idx].qty - deleteTarget.qty;
+        if (nextQty <= 0) return prev.filter((_, i) => i !== idx);
+        const next = [...prev];
+        next[idx] = { ...next[idx], qty: nextQty };
+        return next;
+      })();
+
+      setCartItems(itemsOptimistic);
+
       const items = await adjustCartItem({
         productId: deleteTarget.productId,
         size: deleteTarget.size,
         delta: -deleteTarget.qty,
       });
-      setCartItems(items);
+      if (seq === cartMutationSeq.current) setCartItems(items);
       toast.success("Item removed from cart");
     } catch {
       toast.error("Failed to remove item (mock)");
+      // Revert only if this mutation is still the latest.
+      if (seq === cartMutationSeq.current) setCartItems(prev);
     } finally {
       setDeletingKey(null);
       setDeleteOpen(false);
@@ -269,7 +354,7 @@ export default function Cart() {
                           size="icon"
                           className="rounded-full h-8 w-8"
                           onClick={() => void adjustQty(item, -1)}
-                          disabled={adjustingKey === `${item.productId}:${item.size}`}
+                          disabled={adjustingKey != null}
                           aria-label="Decrease quantity"
                         >
                           <Minus className="w-4 h-4" strokeWidth={1.5} />
@@ -285,7 +370,7 @@ export default function Cart() {
                           size="icon"
                           className="rounded-full h-8 w-8"
                           onClick={() => void adjustQty(item, +1)}
-                          disabled={adjustingKey === `${item.productId}:${item.size}`}
+                          disabled={adjustingKey != null}
                           aria-label="Increase quantity"
                         >
                           <Plus className="w-4 h-4" strokeWidth={1.5} />
@@ -299,7 +384,7 @@ export default function Cart() {
                           size="icon"
                           className="rounded-full h-8 w-8"
                           onClick={() => requestDeleteItem(item)}
-                          disabled={deletingKey === `${item.productId}:${item.size}` || deletingKey != null}
+                          disabled={adjustingKey != null || deletingKey === `${item.productId}:${item.size}` || deletingKey != null}
                           aria-label="Remove item"
                         >
                           <Trash2 className="w-4 h-4" strokeWidth={1.5} />
@@ -350,6 +435,12 @@ export default function Cart() {
             <span className="text-muted-foreground">Subtotal</span>
             <span className="font-bold text-foreground">₹{subtotal}</span>
           </div>
+          {couponDiscount > 0 && couponLabel && (
+            <div className="flex justify-between text-sm">
+              <span className="text-muted-foreground">Discount</span>
+              <span className="font-bold text-success">-₹{couponDiscount}</span>
+            </div>
+          )}
           <div className="flex justify-between text-sm">
             <span className="text-muted-foreground">Total</span>
             <span className="font-black text-foreground text-lg">₹{total}</span>
