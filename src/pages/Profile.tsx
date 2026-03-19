@@ -19,6 +19,7 @@ import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Switch } from '@/components/ui/switch';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import ConfirmDeleteDialog from '@/components/admin/ConfirmDeleteDialog';
 
 const colorOptions = ["Red", "Blue", "Green", "Black", "White", "Pink", "Orange", "Purple"];
 
@@ -277,7 +278,6 @@ export default function Profile() {
   };
 
   const onDeleteAddress = async (id: string) => {
-    if (!window.confirm("Delete this delivery address?")) return;
     try {
       const res = await deleteDeliveryAddress(id);
       setAddresses(res);
@@ -379,7 +379,7 @@ export default function Profile() {
 
         {/* Delivery Addresses */}
         <div className="bg-card border border-border rounded-2xl p-4 sm:p-5 space-y-3">
-          <div className="flex items-center justify-between gap-3">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
             <div className="min-w-0">
               <p className="text-sm font-bold text-foreground flex items-center gap-2">
                 <MapPin className="w-4 h-4" strokeWidth={1.5} />
@@ -401,7 +401,7 @@ export default function Profile() {
             <div className="space-y-3">
               {addresses.map((a) => (
                 <div key={a.id} className="bg-secondary/30 border border-border rounded-2xl p-4 space-y-2">
-                  <div className="flex items-start justify-between gap-3">
+                  <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
                     <div className="min-w-0">
                       <p className="text-sm font-bold text-foreground truncate">
                         {a.label}
@@ -413,15 +413,24 @@ export default function Profile() {
                       </p>
                       <p className="text-xs text-muted-foreground">{a.recipientName} • {a.mobile}</p>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex flex-col sm:flex-row gap-2 sm:gap-2 justify-end items-end sm:items-start">
                       <Button size="sm" variant="outline" className="rounded-xl h-9 font-bold" onClick={() => openEditAddress(a)}>
                         <Pencil className="w-4 h-4 mr-1" strokeWidth={1.5} />
-                        Edit
+                        
                       </Button>
-                      <Button size="sm" variant="outline" className="rounded-xl h-9 font-bold" onClick={() => void onDeleteAddress(a.id)}>
-                        <Trash2 className="w-4 h-4 mr-1" strokeWidth={1.5} />
-                        Delete
-                      </Button>
+                      <ConfirmDeleteDialog
+                        title="Delete this delivery address?"
+                        description="This will permanently remove the selected address."
+                        confirmText="OK"
+                        cancelText="Cancel"
+                        onConfirm={() => void onDeleteAddress(a.id)}
+                        trigger={
+                          <Button size="sm" variant="outline" className="rounded-xl h-9 font-bold">
+                            <Trash2 className="w-4 h-4 mr-1" strokeWidth={1.5} />
+                            Delete
+                          </Button>
+                        }
+                      />
                     </div>
                   </div>
 
@@ -461,8 +470,8 @@ export default function Profile() {
             <DialogTitle className="font-black">Edit Profile</DialogTitle>
           </DialogHeader>
 
-          <div className="space-y-4 pt-2">
-            <div className="flex items-center gap-3">
+            <div className="space-y-4 pt-2">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-3">
               <div className="w-14 h-14 rounded-full bg-secondary flex items-center justify-center overflow-hidden flex-shrink-0">
                 {editProfilePhotoUrlPreview ? (
                   <img src={editProfilePhotoUrlPreview} alt="Profile preview" className="w-full h-full object-cover" />
@@ -476,7 +485,7 @@ export default function Profile() {
                 <input
                   type="file"
                   accept="image/*"
-                  className="block w-full text-sm file:mr-3 file:py-2 file:px-3 file:rounded-xl file:border-0 file:bg-secondary file:text-foreground/80 hover:file:bg-secondary/70"
+                  className="block w-full text-sm file:py-2 file:px-3 file:rounded-xl file:border-0 file:bg-secondary file:text-foreground/80 hover:file:bg-secondary/70"
                   onChange={(e) => onPickProfilePhoto(e.target.files?.[0] ?? null)}
                 />
                 <Button
@@ -552,7 +561,7 @@ export default function Profile() {
               </div>
             </div>
 
-            <div className="flex gap-2">
+            <div className="flex flex-col sm:flex-row gap-2">
               <Button className="flex-1 rounded-xl font-bold" onClick={() => void onSaveProfile()}>
                 Save
               </Button>

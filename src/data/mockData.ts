@@ -47,4 +47,10 @@ export const productLikes: Record<number, number> = {
   4: 73,
   5: 198,
   6: 145,
+  7: 64,
+  8: 220,
+  9: 88,
+  10: 101,
+  11: 176,
+  12: 132,
 };

@@ -73,12 +73,12 @@ export default function StickyHeader() {
   return (
     <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-lg border-b border-border">
       <div className="flex items-center justify-between px-4 sm:px-6 lg:px-8 h-14 max-w-5xl mx-auto w-full">
-        <div className="flex items-center gap-2">
+        <Link to="/" aria-label="Go to home" className="flex items-center gap-2 hover:opacity-90 transition-opacity">
           <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center">
             <span className="text-primary-foreground text-xs font-black">H</span>
           </div>
           <span className="text-lg font-bold text-foreground">Hasee</span>
-        </div>
+        </Link>
 
         <div className="flex items-center gap-2">
           <Popover>

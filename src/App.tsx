@@ -7,6 +7,7 @@ import Index from "./pages/Index.tsx";
 import Categories from "./pages/Categories.tsx";
 import Rewards from "./pages/Rewards.tsx";
 import Cart from "./pages/Cart.tsx";
+import Sale from "./pages/Sale.tsx";
 import Profile from "./pages/Profile.tsx";
 import AdminDashboard from "./pages/AdminDashboard.tsx";
 import ProductDetail from "./pages/ProductDetail.tsx";
@@ -34,6 +35,7 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/categories" element={<Categories />} />
+          <Route path="/sale" element={<Sale />} />
           <Route path="/rewards" element={<Rewards />} />
           <Route path="/cart" element={<Cart />} />
           <Route path="/community" element={<Community />} />

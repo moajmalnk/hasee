@@ -13,6 +13,16 @@ export type MockOrder = {
   amount: number;
   customer: string;
   status: OrderStatus;
+  // Line items for bill/invoice rendering.
+  // Optional for older seeded orders.
+  items?: Array<{
+    productId: number;
+    name: string;
+    qty: number;
+    unitPrice: number;
+    total: number;
+    category?: string;
+  }>;
   // Admin-only payment verification state.
   gpayScreenshotUrl?: string;
   gpayStatus?: GpayStatus;
@@ -530,6 +540,19 @@ export async function approveCommunityPost(postId: number, featured = false): Pr
   );
 }
 
+export async function revertCommunityPost(postId: number): Promise<void> {
+  await sleep(MOCK_LATENCY_MS);
+  communityPostsState = communityPostsState.map((p) =>
+    p.id === postId
+      ? {
+          ...p,
+          approved: false,
+          featured: false,
+        }
+      : p,
+  );
+}
+
 export async function deleteCommunityPost(postId: number): Promise<void> {
   await sleep(MOCK_LATENCY_MS);
   communityPostsState = communityPostsState.filter((p) => p.id !== postId);
@@ -702,7 +725,12 @@ export async function placeOrder(input: { couponCode?: string }): Promise<MockOr
   const user = sessionState.userName;
   const lineItems = cartState.map((ci) => {
     const p = getProductById(ci.productId);
-    return { ci, price: p?.price ?? 0, name: p?.name ?? `Product ${ci.productId}` };
+    return {
+      ci,
+      price: p?.price ?? 0,
+      name: p?.name ?? `Product ${ci.productId}`,
+      category: p?.category,
+    };
   });
 
   const subtotal = lineItems.reduce((sum, li) => sum + li.price * li.ci.qty, 0);
@@ -718,6 +746,15 @@ export async function placeOrder(input: { couponCode?: string }): Promise<MockOr
   // For simplicity, one order line is shown in Admin UI; we still support multiple cart items internally.
   const primary = lineItems[0];
 
+  const items = lineItems.map((li) => ({
+    productId: li.ci.productId,
+    name: li.name,
+    qty: li.ci.qty,
+    unitPrice: li.price,
+    total: li.price * li.ci.qty,
+    category: li.category,
+  }));
+
   const newOrder: MockOrder = {
     id: `#${orderSeq++}`,
     productId: primary.ci.productId,
@@ -725,6 +762,7 @@ export async function placeOrder(input: { couponCode?: string }): Promise<MockOr
     amount: total,
     customer: user,
     status: "Pending",
+    items,
     createdAt: new Date().toISOString(),
     expectedDeliveryAt: new Date(Date.now() + MS_PER_DAY * 5).toISOString(),
     trackingCode: `TRK-${String(orderSeq).padStart(4, "0")}`,

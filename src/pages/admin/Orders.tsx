@@ -16,6 +16,9 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import ConfirmDeleteDialog from "@/components/admin/ConfirmDeleteDialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Eye } from "lucide-react";
 
 type AdminOrder = MockOrder & {
   gpayScreenshotUrl?: string;
@@ -35,6 +38,9 @@ export default function Orders() {
   const [search, setSearch] = useState("");
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility] = useState<VisibilityState>({ search: false });
+
+  const [viewOpen, setViewOpen] = useState(false);
+  const [viewOrder, setViewOrder] = useState<AdminOrder | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -62,6 +68,14 @@ export default function Orders() {
       return o.status === "Pending";
     });
   }, [orders]);
+
+  const formatDate = (iso: string) => {
+    try {
+      return new Date(iso).toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" });
+    } catch {
+      return iso;
+    }
+  };
 
   useEffect(() => {
     const next = search.trim();
@@ -144,8 +158,24 @@ export default function Orders() {
             <div className="flex items-center gap-2">
               <Button
                 size="sm"
-                className="rounded-xl font-bold"
-                onClick={async () => {
+                variant="outline"
+                className="rounded-xl font-bold border-slate-700"
+                type="button"
+                onClick={() => {
+                  setViewOrder(order);
+                  setViewOpen(true);
+                }}
+              >
+                <Eye className="w-4 h-4 mr-1" strokeWidth={1.5} />
+                View
+              </Button>
+
+              <ConfirmDeleteDialog
+                title="Approve GPay verification?"
+                description={`This will mark order ${order.id} as verified (mock).`}
+                confirmText="Approve"
+                cancelText="Cancel"
+                onConfirm={async () => {
                   try {
                     await approveOrder(order.id);
                     toast.success(`GPay verified for ${order.id} (mock)`);
@@ -154,15 +184,24 @@ export default function Orders() {
                     toast.error("Failed to approve (mock)");
                   }
                 }}
-                disabled={isPaid}
-              >
-                Approve GPay
-              </Button>
-              <Button
-                size="sm"
-                variant="outline"
-                className="rounded-xl font-bold border-slate-700"
-                onClick={async () => {
+                trigger={
+                  <Button
+                    size="sm"
+                    className="rounded-xl font-bold"
+                    disabled={isPaid}
+                    type="button"
+                  >
+                    Approve GPay
+                  </Button>
+                }
+              />
+
+              <ConfirmDeleteDialog
+                title="Reject GPay verification?"
+                description={`This will mark order ${order.id} as rejected (mock).`}
+                confirmText="Reject"
+                cancelText="Cancel"
+                onConfirm={async () => {
                   try {
                     await rejectOrder(order.id);
                     toast.error(`GPay rejected for ${order.id}`);
@@ -171,10 +210,18 @@ export default function Orders() {
                     toast.error("Failed to reject (mock)");
                   }
                 }}
-                disabled={order.status === "Rejected" || order.gpayStatus === "Rejected"}
-              >
-                Reject
-              </Button>
+                trigger={
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="rounded-xl font-bold border-slate-700"
+                    disabled={order.status === "Rejected" || order.gpayStatus === "Rejected"}
+                    type="button"
+                  >
+                    Reject
+                  </Button>
+                }
+              />
             </div>
           );
         },
@@ -251,6 +298,99 @@ export default function Orders() {
           </Table>
         </div>
       )}
+
+      <Dialog
+        open={viewOpen}
+        onOpenChange={(o) => {
+          setViewOpen(o);
+          if (!o) setViewOrder(null);
+        }}
+      >
+        <DialogContent className="rounded-2xl bg-slate-950 border-slate-800 text-slate-100 max-w-3xl">
+          <DialogHeader>
+            <DialogTitle className="font-black">Receipt details</DialogTitle>
+          </DialogHeader>
+
+          {viewOrder ? (
+            <div className="space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+                <div className="min-w-0">
+                  <p className="text-sm text-slate-300">
+                    Receipt: <span className="font-mono font-bold text-slate-100">{viewOrder.id}</span>
+                  </p>
+                  <p className="text-sm text-slate-300 mt-1">
+                    Customer: <span className="font-bold text-slate-100">{viewOrder.customer}</span>
+                  </p>
+                  <p className="text-sm text-slate-300 mt-1">
+                    Product: <span className="font-bold text-slate-100">{viewOrder.productName}</span>
+                  </p>
+                  <p className="text-sm text-slate-300 mt-1">
+                    Amount: <span className="font-bold text-slate-100">₹{viewOrder.amount}</span>
+                  </p>
+                </div>
+
+                <div className="flex gap-2 items-center">
+                  <span
+                    className={`text-[10px] px-2 py-1 rounded-full font-bold uppercase whitespace-nowrap border ${
+                      (viewOrder.gpayStatus ?? (viewOrder.status === "Approved" ? "Paid" : "Pending")) === "Paid"
+                        ? "bg-whatsapp/10 text-whatsapp border-whatsapp/20"
+                        : (viewOrder.gpayStatus ?? (viewOrder.status === "Approved" ? "Paid" : "Pending")) === "Rejected"
+                          ? "bg-destructive/10 text-destructive border-destructive/20"
+                          : "bg-warning/10 text-warning border-warning/20"
+                    }`}
+                  >
+                    {(viewOrder.gpayStatus ?? (viewOrder.status === "Approved" ? "Paid" : "Pending")) as
+                      | "Pending"
+                      | "Paid"
+                      | "Rejected"}
+                  </span>
+                  <span className="text-[10px] px-2 py-1 rounded-full bg-muted text-muted-foreground font-bold uppercase whitespace-nowrap border border-border">
+                    {viewOrder.status === "Approved" ? "Approved" : viewOrder.status === "Rejected" ? "Cancelled" : "Pending"}
+                  </span>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div className="space-y-2">
+                  <p className="text-xs font-bold text-slate-300 uppercase tracking-widest">GPay screenshot</p>
+                  <img
+                    src={viewOrder.gpayScreenshotUrl ?? "https://placehold.co/640x420/0ea5e9/ffffff?text=GPay"}
+                    alt="GPay screenshot"
+                    className="w-full max-h-[420px] object-contain rounded-xl bg-slate-800 border border-slate-800"
+                  />
+                </div>
+                <div className="space-y-3">
+                  <div className="bg-slate-900/30 border border-slate-800 rounded-xl p-3 space-y-2">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-slate-300">Placed</span>
+                      <span className="font-bold text-slate-100">{formatDate(viewOrder.createdAt)}</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-slate-300">Expected delivery</span>
+                      <span className="font-bold text-slate-100">{formatDate(viewOrder.expectedDeliveryAt)}</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-slate-300">Tracking code</span>
+                      <span className="font-bold text-slate-100">{viewOrder.trackingCode}</span>
+                    </div>
+                  </div>
+
+                  <div className="bg-slate-900/30 border border-slate-800 rounded-xl p-3">
+                    <p className="text-xs font-bold text-slate-300 uppercase tracking-widest">Status note</p>
+                    <p className="text-sm text-slate-200 mt-2">
+                      {viewOrder.status === "Rejected"
+                        ? "Cancelled by admin (mock)."
+                        : viewOrder.status === "Approved"
+                          ? "Approved by admin (mock)."
+                          : "Pending admin verification (mock)."}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ) : null}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

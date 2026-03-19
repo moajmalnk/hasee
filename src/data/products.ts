@@ -2,6 +2,13 @@ export interface Product {
   id: number;
   name: string;
   price: number;
+  // Admin inventory & costing fields.
+  purchasePrice: number;
+  // Prefer this in admin UI; store uses `price` (kept in sync).
+  salesPrice: number;
+  quantity: number;
+  availableSizes: string[];
+  minimumQuantity: number;
   category: string;
   // Back-compat field; prefer `imageArray[0]` when rendering.
   image: string;
@@ -15,6 +22,11 @@ export const products: Product[] = [
     id: 1,
     name: "Rayon Maxi",
     price: 380,
+    purchasePrice: 209,
+    salesPrice: 380,
+    quantity: 120,
+    availableSizes: ["S", "M", "L", "XL"],
+    minimumQuantity: 10,
     category: "Rayon",
     imageArray: [
       "/maxi/Rayon%20Maxi.jpg",
@@ -28,6 +40,11 @@ export const products: Product[] = [
     id: 2,
     name: "Dubai Silk Maxi",
     price: 550,
+    purchasePrice: 303,
+    salesPrice: 550,
+    quantity: 90,
+    availableSizes: ["S", "M", "L", "XL"],
+    minimumQuantity: 8,
     category: "Dubai",
     imageArray: [
       "/maxi/Dubai%20Silk%20Maxi.jpeg",
@@ -41,6 +58,11 @@ export const products: Product[] = [
     id: 3,
     name: "Cotton 60 Maxi",
     price: 290,
+    purchasePrice: 160,
+    salesPrice: 290,
+    quantity: 150,
+    availableSizes: ["XS", "S", "M", "L"],
+    minimumQuantity: 12,
     category: "Cotton",
     imageArray: [
       "/maxi/Cotton%2060%20Maxi.webp",
@@ -54,6 +76,11 @@ export const products: Product[] = [
     id: 4,
     name: "Alpine Breathable Maxi",
     price: 300,
+    purchasePrice: 165,
+    salesPrice: 300,
+    quantity: 110,
+    availableSizes: ["S", "M", "L", "XL"],
+    minimumQuantity: 9,
     category: "Alpine",
     imageArray: [
       "/maxi/Alpine%20Breathable%20Maxi.jpg",
@@ -67,6 +94,11 @@ export const products: Product[] = [
     id: 5,
     name: "Chiffon Party Maxi",
     price: 480,
+    purchasePrice: 264,
+    salesPrice: 480,
+    quantity: 95,
+    availableSizes: ["S", "M", "L"],
+    minimumQuantity: 7,
     category: "Chiffon",
     imageArray: [
       "/maxi/Chiffon%20Party%20Maxi.webp",
@@ -80,6 +112,120 @@ export const products: Product[] = [
     id: 6,
     name: "Linen Summer Maxi",
     price: 420,
+    purchasePrice: 231,
+    salesPrice: 420,
+    quantity: 105,
+    availableSizes: ["S", "M", "L", "XL"],
+    minimumQuantity: 10,
+    category: "Linen",
+    imageArray: [
+      "/maxi/Linen%20Summer%20Maxi.avif",
+      "/maxi/Linen%20Summer%20Maxi.avif",
+      "/maxi/Linen%20Summer%20Maxi.avif",
+    ],
+    image: "/maxi/Linen%20Summer%20Maxi.avif",
+    availableColors: ["Sand", "Beige", "Olive"],
+  },
+  // Additional collections (reuse existing maxi visuals but with unique product entries).
+  {
+    id: 7,
+    name: "Rayon Maxi - Soft Breeze",
+    price: 399,
+    purchasePrice: 219,
+    salesPrice: 399,
+    quantity: 115,
+    availableSizes: ["S", "M", "L", "XL"],
+    minimumQuantity: 10,
+    category: "Rayon",
+    imageArray: [
+      "/maxi/Rayon%20Maxi.jpg",
+      "/maxi/Rayon%20Maxi.jpg",
+      "/maxi/Rayon%20Maxi.jpg",
+    ],
+    image: "/maxi/Rayon%20Maxi.jpg",
+    availableColors: ["Coral", "Navy", "Ivory"],
+  },
+  {
+    id: 8,
+    name: "Dubai Silk Maxi - Royal Shine",
+    price: 620,
+    purchasePrice: 341,
+    salesPrice: 620,
+    quantity: 80,
+    availableSizes: ["S", "M", "L", "XL"],
+    minimumQuantity: 6,
+    category: "Dubai",
+    imageArray: [
+      "/maxi/Dubai%20Silk%20Maxi.jpeg",
+      "/maxi/Dubai%20Silk%20Maxi.jpeg",
+      "/maxi/Dubai%20Silk%20Maxi.jpeg",
+    ],
+    image: "/maxi/Dubai%20Silk%20Maxi.jpeg",
+    availableColors: ["Champagne", "Black", "Wine"],
+  },
+  {
+    id: 9,
+    name: "Cotton 60 Maxi - Everyday Comfort",
+    price: 320,
+    purchasePrice: 176,
+    salesPrice: 320,
+    quantity: 140,
+    availableSizes: ["XS", "S", "M", "L"],
+    minimumQuantity: 11,
+    category: "Cotton",
+    imageArray: [
+      "/maxi/Cotton%2060%20Maxi.webp",
+      "/maxi/Cotton%2060%20Maxi.webp",
+      "/maxi/Cotton%2060%20Maxi.webp",
+    ],
+    image: "/maxi/Cotton%2060%20Maxi.webp",
+    availableColors: ["Cream", "Sky Blue", "Charcoal"],
+  },
+  {
+    id: 10,
+    name: "Alpine Breathable Maxi - Active Fit",
+    price: 340,
+    purchasePrice: 187,
+    salesPrice: 340,
+    quantity: 105,
+    availableSizes: ["S", "M", "L", "XL"],
+    minimumQuantity: 9,
+    category: "Alpine",
+    imageArray: [
+      "/maxi/Alpine%20Breathable%20Maxi.jpg",
+      "/maxi/Alpine%20Breathable%20Maxi.jpg",
+      "/maxi/Alpine%20Breathable%20Maxi.jpg",
+    ],
+    image: "/maxi/Alpine%20Breathable%20Maxi.jpg",
+    availableColors: ["Navy", "Ocean", "Pearl"],
+  },
+  {
+    id: 11,
+    name: "Chiffon Party Maxi - Glam Edition",
+    price: 520,
+    purchasePrice: 286,
+    salesPrice: 520,
+    quantity: 90,
+    availableSizes: ["S", "M", "L"],
+    minimumQuantity: 7,
+    category: "Chiffon",
+    imageArray: [
+      "/maxi/Chiffon%20Party%20Maxi.webp",
+      "/maxi/Chiffon%20Party%20Maxi.webp",
+      "/maxi/Chiffon%20Party%20Maxi.webp",
+    ],
+    image: "/maxi/Chiffon%20Party%20Maxi.webp",
+    availableColors: ["Rose", "Peach", "Champagne"],
+  },
+  {
+    id: 12,
+    name: "Linen Summer Maxi - Breeze Wear",
+    price: 460,
+    purchasePrice: 253,
+    salesPrice: 460,
+    quantity: 100,
+    availableSizes: ["S", "M", "L", "XL"],
+    minimumQuantity: 8,
     category: "Linen",
     imageArray: [
       "/maxi/Linen%20Summer%20Maxi.avif",

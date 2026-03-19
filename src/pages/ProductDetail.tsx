@@ -278,7 +278,7 @@ export default function ProductDetail() {
         </div>
 
         {/* Primary actions (tablet/desktop: side-by-side) */}
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {/* Add to Cart */}
           <Button
             onClick={onAddToCart}

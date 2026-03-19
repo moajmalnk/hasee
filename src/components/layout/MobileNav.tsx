@@ -13,23 +13,37 @@ export default function MobileNav() {
   const location = useLocation();
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-lg border-t border-border pb-[env(safe-area-inset-bottom)]">
-      <div className="flex justify-around items-center h-16">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 pb-[env(safe-area-inset-bottom)]">
+      <div className="mx-auto w-full bg-background/75 backdrop-blur-xl border-t border-border">
+        <div className="flex justify-around items-center h-16 px-2">
         {navItems.map((item) => {
           const isActive = location.pathname === item.href;
           return (
             <Link
               key={item.label}
               to={item.href}
-              className={`flex flex-col items-center gap-1 transition-colors duration-200 ${
-                isActive ? 'text-primary' : 'text-muted-foreground'
-              }`}
+              className="relative flex flex-col items-center justify-center gap-1 px-2 py-2 rounded-2xl transition-colors duration-200"
             >
-              <item.icon className="w-5 h-5" strokeWidth={1.5} />
-              <span className="text-[10px] font-medium">{item.label}</span>
+              {/* Active background */}
+              {isActive ? <span className="absolute inset-0 z-0 bg-primary/10 border border-primary/20 rounded-2xl" /> : null}
+
+              <item.icon
+                className={`w-5 h-5 transition-colors duration-200 z-10 ${
+                  isActive ? "text-primary" : "text-muted-foreground"
+                }`}
+                strokeWidth={1.5}
+              />
+              <span
+                className={`text-[10px] font-bold transition-colors duration-200 z-10 ${
+                  isActive ? "text-primary" : "text-muted-foreground"
+                }`}
+              >
+                {item.label}
+              </span>
             </Link>
           );
         })}
+      </div>
       </div>
     </nav>
   );

@@ -50,7 +50,7 @@ export default function AdminSidebar() {
             <span className="text-primary-foreground text-sm font-black">H</span>
           </div>
           <div className="leading-tight">
-            <p className="text-sm font-black text-slate-100">Hasee Admin</p>
+            <p className="text-sm font-extrabold text-slate-100 tracking-wide">Hasee Admin</p>
             <p className="text-[10px] font-bold text-slate-300 uppercase tracking-widest">Pink & Slate</p>
           </div>
         </div>

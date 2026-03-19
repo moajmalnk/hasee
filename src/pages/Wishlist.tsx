@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { getWishlistProducts, toggleProductLike } from "@/services/mockApi";
 import type { Product } from "@/data/products";
 import { ShoppingBag } from "lucide-react";
+import ConfirmDeleteDialog from "@/components/admin/ConfirmDeleteDialog";
 
 export default function Wishlist() {
   const [items, setItems] = useState<Product[]>([]);
@@ -94,7 +95,6 @@ export default function Wishlist() {
                     size="sm"
                     variant="outline"
                     className="rounded-full px-3"
-                    onClick={() => remove(p.id)}
                   >
                     <Heart className="w-4 h-4 mr-1 fill-primary text-primary" strokeWidth={1.5} />
                     Remove

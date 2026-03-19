@@ -337,8 +337,11 @@ export default function Cart() {
               const p = products.find((pp) => pp.id === item.productId);
               if (!p) return null;
               return (
-                <div key={`${item.productId}:${item.size}`} className="bg-card border border-border rounded-2xl p-4 flex gap-4">
-                  <div className="w-20 h-28 rounded-xl bg-secondary overflow-hidden flex-shrink-0">
+                <div
+                  key={`${item.productId}:${item.size}`}
+                  className="bg-card border border-border rounded-2xl p-4 flex gap-3 sm:gap-4 items-start"
+                >
+                  <div className="w-16 h-24 sm:w-20 sm:h-28 rounded-xl bg-secondary overflow-hidden flex-shrink-0">
                     <img src={p.image} alt={p.name} className="w-full h-full object-cover" />
                   </div>
                   <div className="flex-1 min-w-0">
@@ -346,7 +349,7 @@ export default function Cart() {
                     <p className="text-xs text-muted-foreground mt-1">
                       Size: {item.size}
                     </p>
-                    <div className="mt-3 flex items-center justify-between gap-4">
+                    <div className="mt-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                       <div className="flex items-center gap-2">
                         <Button
                           type="button"
@@ -377,7 +380,7 @@ export default function Cart() {
                         </Button>
                       </div>
 
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-end">
                         <Button
                           type="button"
                           variant="outline"
@@ -390,7 +393,7 @@ export default function Cart() {
                           <Trash2 className="w-4 h-4" strokeWidth={1.5} />
                         </Button>
 
-                        <p className="text-lg font-bold text-foreground">₹{p.price * item.qty}</p>
+                        <p className="text-base sm:text-lg font-bold text-foreground">₹{p.price * item.qty}</p>
                       </div>
                     </div>
                   </div>
@@ -451,7 +454,7 @@ export default function Cart() {
         <div className="bg-muted rounded-2xl p-4 border-2 border-dashed border-border space-y-2">
           <p className="text-[10px] uppercase font-bold text-muted-foreground">Step 1: Pay via GPay/PhonePe</p>
 
-          <div className="flex items-start justify-between gap-4 md:gap-6">
+          <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4 md:gap-6">
             <div className="flex-1 min-w-0">
               <div className="flex items-center justify-between gap-3">
                 <div>
@@ -468,7 +471,7 @@ export default function Cart() {
               </div>
 
               <div className="pt-3">
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   <Button
                     variant="outline"
                     className="rounded-xl h-11 font-bold"
@@ -492,7 +495,7 @@ export default function Cart() {
               </div>
             </div>
 
-            <div className="flex-shrink-0 w-[104px] md:w-[120px]">
+            <div className="flex-shrink-0 w-[160px] md:w-[120px] mx-auto md:mx-0">
               {upiQrDataUrl ? (
                 <img
                   src={upiQrDataUrl}

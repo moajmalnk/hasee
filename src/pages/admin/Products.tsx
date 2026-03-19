@@ -4,6 +4,7 @@ import { products as catalogProducts } from "@/data/products";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
   Dialog,
   DialogContent,
@@ -35,7 +36,13 @@ type AdminProductDraft = {
   id?: number;
   name: string;
   category: string;
-  price: string;
+  // Sales pricing displayed on storefront (also synced to `product.price`)
+  salesPrice: string;
+  purchasePrice: string;
+  // Inventory fields.
+  quantity: string;
+  availableSizesText: string; // comma separated
+  minimumQuantity: string;
   videoUrl: string;
   imageUrlsText: string; // newline/comma separated
   colorsText: string; // comma separated
@@ -75,11 +82,19 @@ export default function AdminProducts() {
   const [draft, setDraft] = useState<AdminProductDraft>({
     name: "",
     category: "Rayon",
-    price: "0",
+    salesPrice: "0",
+    purchasePrice: "0",
+    quantity: "0",
+    availableSizesText: "S, M, L",
+    minimumQuantity: "1",
     videoUrl: "",
     imageUrlsText: "",
     colorsText: "",
   });
+
+  const categoryOptions = useMemo(() => {
+    return Array.from(new Set([...(categories ?? []), draft.category].filter(Boolean))).sort((a, b) => a.localeCompare(b));
+  }, [categories, draft.category]);
   const [draftImages, setDraftImages] = useState<string[]>([]);
 
   useEffect(() => {
@@ -91,7 +106,11 @@ export default function AdminProducts() {
     setDraft({
       name: "",
       category: categories[0] ?? "Rayon",
-      price: "0",
+      salesPrice: "0",
+      purchasePrice: "0",
+      quantity: "50",
+      availableSizesText: "S, M, L",
+      minimumQuantity: "5",
       videoUrl: "",
       imageUrlsText: "",
       colorsText: "",
@@ -105,7 +124,11 @@ export default function AdminProducts() {
       id: p.id,
       name: p.name,
       category: p.category,
-      price: String(p.price),
+      salesPrice: String(p.salesPrice ?? p.price),
+      purchasePrice: String(p.purchasePrice ?? 0),
+      quantity: String(p.quantity ?? 0),
+      availableSizesText: (p.availableSizes ?? []).join(", "),
+      minimumQuantity: String(p.minimumQuantity ?? 0),
       videoUrl: p.videoUrl ?? "",
       imageUrlsText: "",
       colorsText: p.availableColors.join(", "),
@@ -128,12 +151,28 @@ export default function AdminProducts() {
       .filter(Boolean);
   };
 
+  const parseSizes = (text: string) => {
+    return text
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean);
+  };
+
   const saveDraft = async () => {
     const name = draft.name.trim();
     if (!name) return toast.error("Product name is required");
 
-    const price = Number(draft.price);
-    if (!Number.isFinite(price) || price < 0) return toast.error("Valid price is required");
+    const salesPrice = Number(draft.salesPrice);
+    if (!Number.isFinite(salesPrice) || salesPrice < 0) return toast.error("Valid sales price is required");
+
+    const purchasePrice = Number(draft.purchasePrice);
+    if (!Number.isFinite(purchasePrice) || purchasePrice < 0) return toast.error("Valid purchase price is required");
+
+    const quantity = Number(draft.quantity);
+    if (!Number.isFinite(quantity) || quantity < 0) return toast.error("Valid quantity is required");
+
+    const minimumQuantity = Number(draft.minimumQuantity);
+    if (!Number.isFinite(minimumQuantity) || minimumQuantity < 0) return toast.error("Valid minimum quantity is required");
 
     const imageUrlsFromText = parseImages(draft.imageUrlsText);
     const imageArray = draftImages.length > 0 ? draftImages : imageUrlsFromText;
@@ -141,6 +180,9 @@ export default function AdminProducts() {
 
     const colors = parseColors(draft.colorsText);
     if (colors.length === 0) return toast.error("Add at least 1 available color");
+
+    const availableSizes = parseSizes(draft.availableSizesText);
+    if (availableSizes.length === 0) return toast.error("Add at least 1 available size");
 
     const videoUrl = draft.videoUrl.trim() ? draft.videoUrl.trim() : undefined;
     const category = draft.category.trim() || name;
@@ -155,7 +197,13 @@ export default function AdminProducts() {
                   ...p,
                   name,
                   category,
-                  price,
+                  salesPrice,
+                  purchasePrice,
+                  quantity,
+                  availableSizes,
+                  minimumQuantity,
+                  // Keep legacy storefront price in sync.
+                  price: salesPrice,
                   imageArray,
                   image: imageArray[0],
                   videoUrl,
@@ -171,7 +219,13 @@ export default function AdminProducts() {
           id: nextId,
           name,
           category,
-          price,
+          salesPrice,
+          purchasePrice,
+          quantity,
+          availableSizes,
+          minimumQuantity,
+          // Keep legacy storefront price in sync.
+          price: salesPrice,
           imageArray,
           image: imageArray[0],
           videoUrl,
@@ -363,18 +417,37 @@ export default function AdminProducts() {
               </div>
               <div className="space-y-2">
                 <p className="text-xs font-bold text-slate-300">Category</p>
-                <Input value={draft.category} onChange={(e) => setDraft((d) => ({ ...d, category: e.target.value }))} className="rounded-xl bg-slate-900/40 border-slate-800 text-slate-100" />
+                <Select value={draft.category} onValueChange={(v) => setDraft((d) => ({ ...d, category: v }))}>
+                  <SelectTrigger className="rounded-xl bg-slate-900/40 border-slate-800 text-slate-100">
+                    <SelectValue placeholder="Select category" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-slate-950 border-slate-800">
+                    {categoryOptions.map((c) => (
+                      <SelectItem key={c} value={c} className="text-slate-100 hover:bg-slate-800">
+                        {c}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="space-y-2">
-                <p className="text-xs font-bold text-slate-300">Price (INR)</p>
-                <Input value={draft.price} onChange={(e) => setDraft((d) => ({ ...d, price: e.target.value }))} className="rounded-xl bg-slate-900/40 border-slate-800 text-slate-100" />
+                <p className="text-xs font-bold text-slate-300">Sales price (INR)</p>
+                <Input value={draft.salesPrice} onChange={(e) => setDraft((d) => ({ ...d, salesPrice: e.target.value }))} className="rounded-xl bg-slate-900/40 border-slate-800 text-slate-100" />
+              </div>
+              <div className="space-y-2">
+                <p className="text-xs font-bold text-slate-300">Purchase price (INR)</p>
+                <Input value={draft.purchasePrice} onChange={(e) => setDraft((d) => ({ ...d, purchasePrice: e.target.value }))} className="rounded-xl bg-slate-900/40 border-slate-800 text-slate-100" />
               </div>
               <div className="space-y-2">
                 <p className="text-xs font-bold text-slate-300">Video link (optional)</p>
                 <Input value={draft.videoUrl} onChange={(e) => setDraft((d) => ({ ...d, videoUrl: e.target.value }))} placeholder="https://..." className="rounded-xl bg-slate-900/40 border-slate-800 text-slate-100" />
+              </div>
+              <div className="space-y-2">
+                <p className="text-xs font-bold text-slate-300">Quantity (stock)</p>
+                <Input value={draft.quantity} onChange={(e) => setDraft((d) => ({ ...d, quantity: e.target.value }))} className="rounded-xl bg-slate-900/40 border-slate-800 text-slate-100" />
               </div>
             </div>
 
@@ -407,6 +480,17 @@ export default function AdminProducts() {
             <div className="space-y-2">
               <p className="text-xs font-bold text-slate-300">Available Colors (comma separated)</p>
               <Input value={draft.colorsText} onChange={(e) => setDraft((d) => ({ ...d, colorsText: e.target.value }))} placeholder="Red, Blue, Black" className="rounded-xl bg-slate-900/40 border-slate-800 text-slate-100" />
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="space-y-2">
+                <p className="text-xs font-bold text-slate-300">Available sizes (comma separated)</p>
+                <Input value={draft.availableSizesText} onChange={(e) => setDraft((d) => ({ ...d, availableSizesText: e.target.value }))} placeholder="S, M, L" className="rounded-xl bg-slate-900/40 border-slate-800 text-slate-100" />
+              </div>
+              <div className="space-y-2">
+                <p className="text-xs font-bold text-slate-300">Minimum quantity</p>
+                <Input value={draft.minimumQuantity} onChange={(e) => setDraft((d) => ({ ...d, minimumQuantity: e.target.value }))} className="rounded-xl bg-slate-900/40 border-slate-800 text-slate-100" />
+              </div>
             </div>
 
             {draftImages.length > 0 ? (

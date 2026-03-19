@@ -189,3 +189,30 @@
     display: none; /* Chrome/Safari */
   }
 }
+
+/* App-wide custom scrollbar styling */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: hsl(var(--primary) / 0.35) hsl(var(--background));
+}
+
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: hsl(var(--primary) / 0.35);
+  border-radius: 9999px;
+  border: 2px solid hsl(var(--background));
+}
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+}

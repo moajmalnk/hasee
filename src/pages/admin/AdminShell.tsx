@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import { Sidebar, SidebarContent, SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import AdminSidebar from "@/components/admin/AdminSidebar";
-import AdminTopBar from "@/components/admin/AdminTopBar";
+import AdminTopBar from "../../components/admin/AdminTopBar";
 
 export default function AdminShell({ children }: { children: ReactNode }) {
   return (
@@ -13,8 +13,8 @@ export default function AdminShell({ children }: { children: ReactNode }) {
           </SidebarContent>
         </Sidebar>
 
-        <SidebarInset className="bg-slate-950 text-slate-100">
-          <div className="dark h-full">
+        <SidebarInset className="bg-background text-foreground dark:bg-slate-950 dark:text-slate-100">
+          <div className="h-full">
             <AdminTopBar />
             <div className="p-4 md:p-6 lg:p-8">{children}</div>
           </div>

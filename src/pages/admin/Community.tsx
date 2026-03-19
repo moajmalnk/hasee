@@ -1,5 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
-import { getCommunityModerationPosts, approveCommunityPost, deleteCommunityPost, setCommunityFeatured } from "@/services/mockApi";
+import {
+  getCommunityModerationPosts,
+  approveCommunityPost,
+  deleteCommunityPost,
+  setCommunityFeatured,
+  revertCommunityPost,
+} from "@/services/mockApi";
 import type { CommunityPostView } from "@/services/mockApi";
 import { toast } from "sonner";
 import {
@@ -138,10 +144,12 @@ export default function AdminCommunity() {
 
           return (
             <div className="flex items-center gap-2">
-              <Button
-                size="sm"
-                className="rounded-xl font-bold"
-                onClick={async () => {
+              <ConfirmDeleteDialog
+                title="Approve photo?"
+                description="This will approve the customer photo (mock)."
+                confirmText="Approve"
+                cancelText="Cancel"
+                onConfirm={async () => {
                   try {
                     await approveCommunityPost(post.id, featured);
                     toast.success("Post approved");
@@ -150,17 +158,25 @@ export default function AdminCommunity() {
                     toast.error("Failed (mock)");
                   }
                 }}
-                disabled={approved}
-              >
-                <CheckCircle2 className="w-4 h-4 mr-1" strokeWidth={1.5} />
-                Approve
-              </Button>
+                trigger={
+                  <Button
+                    size="sm"
+                    className="rounded-xl font-bold"
+                    disabled={approved}
+                    type="button"
+                  >
+                    <CheckCircle2 className="w-4 h-4 mr-1" strokeWidth={1.5} />
+                    Approve
+                  </Button>
+                }
+              />
 
-              <Button
-                size="sm"
-                variant="outline"
-                className="rounded-xl font-bold border-slate-700"
-                onClick={async () => {
+              <ConfirmDeleteDialog
+                title={featured ? "Unfeature photo?" : "Feature photo?"}
+                description={featured ? "This removes the post from homepage (mock)." : "This marks the post as featured on homepage (mock)."}
+                confirmText={featured ? "Unfeature" : "Feature"}
+                cancelText="Cancel"
+                onConfirm={async () => {
                   try {
                     if (featured) {
                       await setCommunityFeatured(post.id, false);
@@ -173,10 +189,46 @@ export default function AdminCommunity() {
                     toast.error("Failed (mock)");
                   }
                 }}
-              >
-                <Star className="w-4 h-4 mr-1" strokeWidth={1.5} />
-                {featured ? "Unfeature" : "Feature"}
-              </Button>
+                trigger={
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="rounded-xl font-bold border-slate-700"
+                    type="button"
+                  >
+                    <Star className="w-4 h-4 mr-1" strokeWidth={1.5} />
+                    {featured ? "Unfeature" : "Feature"}
+                  </Button>
+                }
+              />
+
+              {approved ? (
+                <ConfirmDeleteDialog
+                  title="Revert to pending?"
+                  description="This will move the post back to pending (mock) and remove featured status."
+                  confirmText="Revert"
+                  cancelText="Cancel"
+                  onConfirm={async () => {
+                    try {
+                      await revertCommunityPost(post.id);
+                      toast.success("Reverted to pending");
+                      await fetch();
+                    } catch {
+                      toast.error("Failed (mock)");
+                    }
+                  }}
+                  trigger={
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="rounded-xl font-bold border-slate-700"
+                      type="button"
+                    >
+                      Revert
+                    </Button>
+                  }
+                />
+              ) : null}
 
               <ConfirmDeleteDialog
                 title="Delete photo?"

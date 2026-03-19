@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { getAllReviews, approveReview, deleteReview } from "@/services/mockApi";
+import { getAllReviews, approveReview, deleteReview, updateReview } from "@/services/mockApi";
 import type { Review } from "@/data/mockData";
 import { toast } from "sonner";
 import {
@@ -15,6 +15,7 @@ import {
 } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import ConfirmDeleteDialog from "@/components/admin/ConfirmDeleteDialog";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -36,6 +37,9 @@ export default function AdminFeedback() {
   const [columnVisibility] = useState<VisibilityState>({ search: false });
 
   const [preview, setPreview] = useState<Review | null>(null);
+
+  const [editOpen, setEditOpen] = useState(false);
+  const [editDraft, setEditDraft] = useState<{ reviewId: number; rating: number; comment: string } | null>(null);
 
   const refresh = async () => {
     setLoading(true);
@@ -126,10 +130,12 @@ export default function AdminFeedback() {
           return (
             <div className="flex items-center gap-2">
               {!r.approved ? (
-                <Button
-                  size="sm"
-                  className="rounded-xl font-bold"
-                  onClick={async () => {
+                <ConfirmDeleteDialog
+                  title="Approve review?"
+                  description="This will mark the review as approved (mock)."
+                  confirmText="Approve"
+                  cancelText="Cancel"
+                  onConfirm={async () => {
                     try {
                       await approveReview(r.id);
                       toast.success("Review approved");
@@ -138,11 +144,27 @@ export default function AdminFeedback() {
                       toast.error("Failed (mock)");
                     }
                   }}
-                >
-                  <CheckCircle2 className="w-4 h-4 mr-1" strokeWidth={1.5} />
-                  Approve
-                </Button>
+                  trigger={
+                    <Button size="sm" className="rounded-xl font-bold" type="button">
+                      <CheckCircle2 className="w-4 h-4 mr-1" strokeWidth={1.5} />
+                      Approve
+                    </Button>
+                  }
+                />
               ) : null}
+
+              <Button
+                size="sm"
+                variant="outline"
+                className="rounded-xl font-bold border-slate-700"
+                type="button"
+                onClick={() => {
+                  setEditDraft({ reviewId: r.id, rating: r.rating, comment: r.comment });
+                  setEditOpen(true);
+                }}
+              >
+                Edit
+              </Button>
 
               <ConfirmDeleteDialog
                 title="Delete review?"
@@ -255,6 +277,78 @@ export default function AdminFeedback() {
                 <span className="font-bold text-slate-100">{preview.userName}</span> • Product #{preview.productId}
               </div>
               <div className="text-sm text-slate-200">{preview.comment}</div>
+            </div>
+          ) : null}
+        </DialogContent>
+      </Dialog>
+
+      <Dialog
+        open={editOpen}
+        onOpenChange={(o) => {
+          if (!o) setEditOpen(false);
+        }}
+      >
+        <DialogContent className="rounded-2xl bg-slate-950 border-slate-800 text-slate-100 max-w-xl">
+          <DialogHeader>
+            <DialogTitle className="font-black">Edit Review</DialogTitle>
+          </DialogHeader>
+
+          {editDraft ? (
+            <div className="space-y-3 pt-2">
+              <div className="space-y-2">
+                <p className="text-xs font-bold text-slate-300">Rating</p>
+                <Input
+                  type="number"
+                  min={1}
+                  max={5}
+                  value={editDraft.rating}
+                  onChange={(e) => setEditDraft((d) => (d ? { ...d, rating: Number(e.target.value) } : d))}
+                  className="rounded-xl bg-slate-900/40 border-slate-800 text-slate-100"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <p className="text-xs font-bold text-slate-300">Comment</p>
+                <Textarea
+                  value={editDraft.comment}
+                  onChange={(e) => setEditDraft((d) => (d ? { ...d, comment: e.target.value } : d))}
+                  className="rounded-xl bg-slate-900/40 border-slate-800 text-slate-100 min-h-[120px]"
+                />
+              </div>
+
+              <div className="flex gap-2 pt-2">
+                <ConfirmDeleteDialog
+                  title="Save changes?"
+                  description="This will update the review and set it back to pending (mock)."
+                  confirmText="Save"
+                  cancelText="Cancel"
+                  onConfirm={async () => {
+                    if (!editDraft) return;
+                    try {
+                      await updateReview({ reviewId: editDraft.reviewId, rating: editDraft.rating, comment: editDraft.comment });
+                      toast.success("Review updated (mock)");
+                      await refresh();
+                      setEditOpen(false);
+                    } catch {
+                      toast.error("Failed to update (mock)");
+                    }
+                  }}
+                  trigger={
+                    <Button type="button" className="flex-1 rounded-xl font-bold">
+                      Save
+                    </Button>
+                  }
+                />
+
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="flex-1 rounded-xl font-bold border-slate-800 text-slate-200"
+                  onClick={() => setEditOpen(false)}
+                >
+                  Cancel
+                </Button>
+              </div>
             </div>
           ) : null}
         </DialogContent>

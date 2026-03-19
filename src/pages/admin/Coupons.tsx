@@ -17,6 +17,7 @@ import { toast } from "sonner";
 import { Edit2, Plus, Trash2 } from "lucide-react";
 import ConfirmDeleteDialog from "@/components/admin/ConfirmDeleteDialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import DatePicker from "@/components/ui/date-picker";
 
 function includesTextFilterFn(row: any, columnId: string, filterValue: string) {
   const v = row.getValue(columnId);
@@ -29,13 +30,17 @@ type CouponRow = {
   expiryDate: string; // ISO
   usageLimit: number;
   usageCount: number;
+  // Discount definition shown in Admin (UI). In this mock setup, cart logic
+  // currently only supports some fixed coupon codes.
+  discountType: "percentage" | "amount";
+  discountValue: number;
 };
 
 export default function AdminCoupons() {
   const [coupons, setCoupons] = useState<CouponRow[]>(() => [
-    { id: "cp-1", code: "RAMZAN20", expiryDate: new Date(Date.now() + 1000 * 60 * 60 * 24 * 20).toISOString(), usageLimit: 200, usageCount: 42 },
-    { id: "cp-2", code: "SAVE10", expiryDate: new Date(Date.now() + 1000 * 60 * 60 * 24 * 12).toISOString(), usageLimit: 500, usageCount: 120 },
-    { id: "cp-3", code: "WELCOME50", expiryDate: new Date(Date.now() + 1000 * 60 * 60 * 24 * 30).toISOString(), usageLimit: 100, usageCount: 18 },
+    { id: "cp-1", code: "RAMZAN20", expiryDate: new Date(Date.now() + 1000 * 60 * 60 * 24 * 20).toISOString(), usageLimit: 200, usageCount: 42, discountType: "percentage", discountValue: 20 },
+    { id: "cp-2", code: "SAVE10", expiryDate: new Date(Date.now() + 1000 * 60 * 60 * 24 * 12).toISOString(), usageLimit: 500, usageCount: 120, discountType: "percentage", discountValue: 10 },
+    { id: "cp-3", code: "WELCOME50", expiryDate: new Date(Date.now() + 1000 * 60 * 60 * 24 * 30).toISOString(), usageLimit: 100, usageCount: 18, discountType: "amount", discountValue: 50 },
   ]);
 
   const [search, setSearch] = useState("");
@@ -49,11 +54,21 @@ export default function AdminCoupons() {
   }, [search]);
 
   const [open, setOpen] = useState(false);
-  const [draft, setDraft] = useState<{ id?: string; code: string; expiryDate: string; usageLimit: string; usageCount: string }>({
+  const [draft, setDraft] = useState<{
+    id?: string;
+    code: string;
+    expiryDate: string;
+    usageLimit: string;
+    usageCount: string;
+    discountType: "percentage" | "amount";
+    discountValue: string;
+  }>({
     code: "",
     expiryDate: "",
     usageLimit: "0",
     usageCount: "0",
+    discountType: "percentage",
+    discountValue: "0",
   });
 
   const openCreate = () => {
@@ -62,6 +77,8 @@ export default function AdminCoupons() {
       expiryDate: new Date(Date.now() + 1000 * 60 * 60 * 24 * 15).toISOString().slice(0, 10),
       usageLimit: "100",
       usageCount: "0",
+      discountType: "percentage",
+      discountValue: "10",
     });
     setOpen(true);
   };
@@ -73,6 +90,8 @@ export default function AdminCoupons() {
       expiryDate: new Date(c.expiryDate).toISOString().slice(0, 10),
       usageLimit: String(c.usageLimit),
       usageCount: String(c.usageCount),
+      discountType: c.discountType,
+      discountValue: String(c.discountValue),
     });
     setOpen(true);
   };
@@ -84,8 +103,10 @@ export default function AdminCoupons() {
     const expiry = new Date(draft.expiryDate).toISOString();
     const usageLimit = Number(draft.usageLimit);
     const usageCount = Number(draft.usageCount);
+    const discountValue = Number(draft.discountValue);
     if (!Number.isFinite(usageLimit) || usageLimit < 0) return toast.error("Usage limit invalid");
     if (!Number.isFinite(usageCount) || usageCount < 0) return toast.error("Usage count invalid");
+    if (!Number.isFinite(discountValue) || discountValue < 0) return toast.error("Discount value invalid");
 
     const next: CouponRow = {
       id: draft.id ?? `cp-${Date.now()}`,
@@ -93,6 +114,8 @@ export default function AdminCoupons() {
       expiryDate: expiry,
       usageLimit,
       usageCount,
+      discountType: draft.discountType,
+      discountValue,
     };
 
     setCoupons((prev) => {
@@ -140,6 +163,18 @@ export default function AdminCoupons() {
             {row.original.usageCount}/{row.original.usageLimit}
           </span>
         ),
+      },
+      {
+        accessorKey: "discountValue",
+        header: "Discount",
+        cell: ({ row }) => {
+          const { discountType, discountValue } = row.original;
+          return (
+            <span className="text-slate-200 font-bold">
+              {discountType === "percentage" ? `${discountValue}%` : `₹${discountValue}`}
+            </span>
+          );
+        },
       },
       {
         id: "actions",
@@ -250,7 +285,11 @@ export default function AdminCoupons() {
             </div>
             <div className="space-y-2">
               <p className="text-xs font-bold text-slate-300">Expiry date</p>
-              <Input type="date" value={draft.expiryDate} onChange={(e) => setDraft((d) => ({ ...d, expiryDate: e.target.value }))} className="rounded-xl bg-slate-900/40 border-slate-800 text-slate-100" />
+              <DatePicker
+                value={draft.expiryDate}
+                onChange={(v) => setDraft((d) => ({ ...d, expiryDate: v }))}
+                className="h-10 rounded-xl px-3"
+              />
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="space-y-2">
@@ -262,6 +301,39 @@ export default function AdminCoupons() {
                 <Input value={draft.usageCount} onChange={(e) => setDraft((d) => ({ ...d, usageCount: e.target.value }))} className="rounded-xl bg-slate-900/40 border-slate-800 text-slate-100" />
               </div>
             </div>
+
+            {/* Discount definition */}
+            <div className="space-y-2 pt-2">
+              <p className="text-xs font-bold text-slate-300">Discount type</p>
+              <div className="flex gap-2">
+                <Button
+                  type="button"
+                  variant={draft.discountType === "percentage" ? "default" : "outline"}
+                  className="rounded-xl font-bold flex-1"
+                  onClick={() => setDraft((d) => ({ ...d, discountType: "percentage" }))}
+                >
+                  Percentage %
+                </Button>
+                <Button
+                  type="button"
+                  variant={draft.discountType === "amount" ? "default" : "outline"}
+                  className="rounded-xl font-bold flex-1"
+                  onClick={() => setDraft((d) => ({ ...d, discountType: "amount" }))}
+                >
+                  Payment ₹
+                </Button>
+              </div>
+              <div className="space-y-2 pt-2">
+                <p className="text-xs font-bold text-slate-300">Discount value</p>
+                <Input
+                  value={draft.discountValue}
+                  onChange={(e) => setDraft((d) => ({ ...d, discountValue: e.target.value }))}
+                  className="rounded-xl bg-slate-900/40 border-slate-800 text-slate-100"
+                  placeholder={draft.discountType === "percentage" ? "e.g. 10" : "e.g. 50"}
+                />
+              </div>
+            </div>
+
             <div className="flex gap-2 pt-2">
               <Button className="flex-1 rounded-xl font-bold" onClick={save}>
                 Save

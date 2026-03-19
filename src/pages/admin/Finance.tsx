@@ -161,28 +161,28 @@ export default function Finance() {
   return (
     <div className="space-y-4">
       <div className="space-y-1">
-        <h1 className="text-2xl font-black text-slate-50">Finance & Refunds</h1>
-        <p className="text-sm text-slate-300">Track refunds and highlight risky categories (mock).</p>
+        <h1 className="text-2xl font-black text-foreground">Finance & Refunds</h1>
+        <p className="text-sm text-muted-foreground">Track refunds and highlight risky categories (mock).</p>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
         {kpis.map((k) => (
           <Card
             key={k.label}
-            className="rounded-2xl bg-slate-900/40 border-slate-800 p-4"
+            className="rounded-2xl bg-card border border-border p-4"
           >
-            <p className="text-[10px] font-extrabold uppercase tracking-widest text-slate-400">{k.label}</p>
-            <p className="text-xl font-black text-slate-50 mt-1">{k.value}</p>
+            <p className="text-[10px] font-extrabold uppercase tracking-widest text-muted-foreground">{k.label}</p>
+            <p className="text-xl font-black text-foreground mt-1">{k.value}</p>
             {k.label === "Total Revenue (INR)" && refundAnalytics.dubaiHighRefund ? (
-              <p className="text-xs font-bold mt-2 text-red-400">Dubai refund risk detected</p>
+              <p className="text-xs font-bold mt-2 text-destructive">Dubai refund risk detected</p>
             ) : null}
           </Card>
         ))}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <Card className="rounded-2xl bg-slate-900/40 border-slate-800 p-4">
-          <p className="text-sm font-black text-slate-50">Sales vs. Time</p>
+        <Card className="rounded-2xl bg-card border border-border p-4">
+          <p className="text-sm font-black text-foreground">Sales vs. Time</p>
           <div className="h-72 mt-2">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={salesVsTime}>
@@ -204,10 +204,16 @@ export default function Finance() {
           </div>
         </Card>
 
-        <Card className="rounded-2xl bg-slate-900/40 border-slate-800 p-4">
-          <p className="text-sm font-black text-slate-50 flex items-center justify-between">
+        <Card className="rounded-2xl bg-card border border-border p-4">
+          <p className="text-sm font-black text-foreground flex items-center justify-between">
             <span>Sales by Category</span>
-            <span className={refundAnalytics.dubaiHighRefund ? "text-red-400 text-xs font-bold" : "text-slate-300 text-xs font-bold"}>
+            <span
+              className={
+                refundAnalytics.dubaiHighRefund
+                  ? "text-destructive text-xs font-bold"
+                  : "text-muted-foreground text-xs font-bold"
+              }
+            >
               Dubai refund rate: {(refundAnalytics.dubai.refundRate * 100).toFixed(1)}%
             </span>
           </p>
@@ -232,7 +238,7 @@ export default function Finance() {
               </PieChart>
             </ResponsiveContainer>
           </div>
-          <div className="flex gap-3 mt-2 text-xs text-slate-300">
+          <div className="flex gap-3 mt-2 text-xs text-muted-foreground">
             {(["Rayon", "Dubai", "Cotton"] as CategoryName[]).map((c) => (
               <span key={c} className="flex items-center gap-1">
                 <span className="w-2.5 h-2.5 rounded-full" style={{ background: pieColors[c] }} />
@@ -243,48 +249,54 @@ export default function Finance() {
         </Card>
       </div>
 
-      <Card className="rounded-2xl bg-slate-900/40 border-slate-800 p-4">
-        <p className="text-sm font-black text-slate-50">Profit Tracker</p>
+      <Card className="rounded-2xl bg-card border border-border p-4">
+        <p className="text-sm font-black text-foreground">Profit Tracker</p>
         <div className="mt-3 space-y-2">
-          <div className="flex items-center justify-between gap-3 text-slate-200">
+          <div className="flex items-center justify-between gap-3 text-muted-foreground">
             <span className="text-sm font-bold">Revenue</span>
-            <span className="font-black">{formatINR(totalRevenue)}</span>
+            <span className="font-black text-foreground">{formatINR(totalRevenue)}</span>
           </div>
-          <div className={refundAnalytics.dubaiHighRefund ? "flex items-center justify-between gap-3 text-red-300" : "flex items-center justify-between gap-3 text-slate-200"}>
+          <div
+            className={
+              refundAnalytics.dubaiHighRefund
+                ? "flex items-center justify-between gap-3 text-destructive"
+                : "flex items-center justify-between gap-3 text-muted-foreground"
+            }
+          >
             <span className="text-sm font-bold">Refunds (est.)</span>
-            <span className="font-black">{formatINR(profitTracker.refundExpense)}</span>
+            <span className="font-black text-foreground">{formatINR(profitTracker.refundExpense)}</span>
           </div>
-          <div className="flex items-center justify-between gap-3 text-slate-200">
+          <div className="flex items-center justify-between gap-3 text-muted-foreground">
             <span className="text-sm font-bold">Other Expenses</span>
-            <span className="font-black">{formatINR(profitTracker.overhead)}</span>
+            <span className="font-black text-foreground">{formatINR(profitTracker.overhead)}</span>
           </div>
-          <div className="h-px bg-slate-800 my-1" />
+          <div className="h-px bg-border my-1" />
           <div className="flex items-center justify-between gap-3">
-            <span className="text-sm font-black text-slate-100">Net Profit</span>
+            <span className="text-sm font-black text-foreground">Net Profit</span>
             <span className={`font-black ${profitTracker.netProfit >= 0 ? "text-whatsapp" : "text-destructive"}`}>
               {formatINR(profitTracker.netProfit)}
             </span>
           </div>
         </div>
 
-        <div className="mt-4 border border-slate-800 rounded-2xl overflow-hidden">
-          <div className="px-4 py-2 bg-slate-950/30 text-xs font-bold text-slate-300">
+        <div className="mt-4 border border-border rounded-2xl overflow-hidden">
+          <div className="px-4 py-2 bg-secondary/50 text-xs font-bold text-muted-foreground">
             Refund rate by category (&lt;= 20% safe zone)
           </div>
-          <div className="divide-y divide-slate-800">
+          <div className="divide-y divide-border">
             {refundAnalytics.perCat.map((c) => {
               const risky = c.refundRate >= 0.2;
               return (
                 <div
                   key={c.cat}
                   className={`px-4 py-2 flex items-center justify-between text-sm ${
-                    risky ? "text-red-300 bg-red-500/5" : "text-slate-200"
+                    risky ? "text-destructive bg-destructive/10" : "text-foreground"
                   }`}
                 >
                   <span className="font-bold">{c.cat}</span>
                   <span className="font-black">
                     {c.total === 0 ? "—" : `${(c.refundRate * 100).toFixed(1)}%`}{" "}
-                    {risky ? <span className="ml-2 text-red-400 font-extrabold">RISK</span> : null}
+                    {risky ? <span className="ml-2 text-destructive font-extrabold">RISK</span> : null}
                   </span>
                 </div>
               );
