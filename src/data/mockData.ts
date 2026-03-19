@@ -19,6 +19,9 @@ export interface CommunityPost {
   likes: number;
   productName: string;
   date: string;
+  // Admin moderation: only approved posts appear on the public homepage.
+  approved?: boolean;
+  featured?: boolean;
 }
 
 export const mockReviews: Review[] = [
@@ -30,11 +33,11 @@ export const mockReviews: Review[] = [
 ];
 
 export const communityPosts: CommunityPost[] = [
-  { id: 1, userName: "Aisha K.", userAvatar: "AK", image: "https://placehold.co/600x800/FFB6C1/white?text=Customer+Style+1", caption: "Loving my new Rayon Maxi for weekend brunch! 💕", likes: 47, productName: "Premium Rayon Maxi", date: "2h ago" },
-  { id: 2, userName: "Priya M.", userAvatar: "PM", image: "https://placehold.co/600x800/FFC0CB/white?text=Customer+Style+2", caption: "Dubai Silk for the wedding season ✨", likes: 124, productName: "Dubai Silk Maxi", date: "5h ago" },
-  { id: 3, userName: "Fatima R.", userAvatar: "FR", image: "https://placehold.co/600x800/FFD1DC/white?text=Customer+Style+3", caption: "Cotton comfort all day long 🌸", likes: 89, productName: "Pure Cotton Maxi", date: "1d ago" },
-  { id: 4, userName: "Zainab A.", userAvatar: "ZA", image: "https://placehold.co/600x800/FADADD/white?text=Customer+Style+4", caption: "My go-to maxi for everything casual!", likes: 56, productName: "Alpine Breathable Maxi", date: "2d ago" },
-  { id: 5, userName: "Sara J.", userAvatar: "SJ", image: "https://placehold.co/600x800/F8C8DC/white?text=Customer+Style+5", caption: "Chiffon party look 🎉", likes: 201, productName: "Chiffon Party Maxi", date: "3d ago" },
+  { id: 1, userName: "Aisha K.", userAvatar: "AK", image: "https://placehold.co/600x800/FFB6C1/white?text=Customer+Style+1", caption: "Loving my new Rayon Maxi for weekend brunch! 💕", likes: 47, productName: "Premium Rayon Maxi", date: "2h ago", approved: true, featured: true },
+  { id: 2, userName: "Priya M.", userAvatar: "PM", image: "https://placehold.co/600x800/FFC0CB/white?text=Customer+Style+2", caption: "Dubai Silk for the wedding season ✨", likes: 124, productName: "Dubai Silk Maxi", date: "5h ago", approved: false, featured: false },
+  { id: 3, userName: "Fatima R.", userAvatar: "FR", image: "https://placehold.co/600x800/FFD1DC/white?text=Customer+Style+3", caption: "Cotton comfort all day long 🌸", likes: 89, productName: "Pure Cotton Maxi", date: "1d ago", approved: true, featured: false },
+  { id: 4, userName: "Zainab A.", userAvatar: "ZA", image: "https://placehold.co/600x800/FADADD/white?text=Customer+Style+4", caption: "My go-to maxi for everything casual!", likes: 56, productName: "Alpine Breathable Maxi", date: "2d ago", approved: false, featured: false },
+  { id: 5, userName: "Sara J.", userAvatar: "SJ", image: "https://placehold.co/600x800/F8C8DC/white?text=Customer+Style+5", caption: "Chiffon party look 🎉", likes: 201, productName: "Chiffon Party Maxi", date: "3d ago", approved: true, featured: false },
 ];
 
 export const productLikes: Record<number, number> = {

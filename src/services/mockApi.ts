@@ -4,6 +4,8 @@ import type { OnboardingData, Role, Session } from "@/auth/types";
 
 type OrderStatus = "Pending" | "Approved" | "Rejected";
 
+type GpayStatus = "Pending" | "Paid" | "Rejected";
+
 export type MockOrder = {
   id: string;
   productId: number;
@@ -11,6 +13,11 @@ export type MockOrder = {
   amount: number;
   customer: string;
   status: OrderStatus;
+  // Admin-only payment verification state.
+  gpayScreenshotUrl?: string;
+  gpayStatus?: GpayStatus;
+  // Referral lead phone (referee) that should unlock the 15-day reward window.
+  refereePhone?: string;
   createdAt: string; // ISO
   expectedDeliveryAt: string; // ISO
   trackingCode: string;
@@ -31,6 +38,10 @@ type RewardsLeadBase = {
   name: string;
   deliveryDate?: string; // ISO string; absent means only Clicked
   refunded?: boolean;
+  // Used by admin referrals: who invited this lead (referrer) and which product category they bought.
+  referrerPhone?: string;
+  referrerName?: string;
+  productCategory?: string; // Rayon | Dubai | Cotton | ...
 };
 
 export type RewardsLead = RewardsLeadBase & {
@@ -76,11 +87,14 @@ const likedProductIds = new Set<number>();
 let ordersState: MockOrder[] = [
   {
     id: "#8821",
-    productId: 1,
-    productName: "Rayon Maxi",
-    amount: 380,
+    productId: 2,
+    productName: "Dubai Silk Maxi",
+    amount: 2100,
     customer: "Aisha K.",
     status: "Pending",
+    gpayStatus: "Pending",
+    gpayScreenshotUrl: "https://placehold.co/320x200/8A2BE2/ffffff?text=GPay+Screenshot",
+    refereePhone: "1000000201",
     createdAt: new Date(Date.now() - MS_PER_DAY * 1).toISOString(),
     expectedDeliveryAt: new Date(Date.now() + MS_PER_DAY * 4).toISOString(),
     trackingCode: "TRK-8821",
@@ -89,24 +103,110 @@ let ordersState: MockOrder[] = [
     id: "#8822",
     productId: 2,
     productName: "Dubai Silk Maxi",
-    amount: 550,
+    amount: 2100,
     customer: "Priya M.",
     status: "Pending",
+    gpayStatus: "Pending",
+    gpayScreenshotUrl: "https://placehold.co/320x200/9932CC/ffffff?text=GPay+Screenshot",
+    refereePhone: "1000000202",
     createdAt: new Date(Date.now() - MS_PER_DAY * 2).toISOString(),
     expectedDeliveryAt: new Date(Date.now() + MS_PER_DAY * 3).toISOString(),
     trackingCode: "TRK-8822",
   },
   {
     id: "#8823",
-    productId: 3,
-    productName: "Cotton Maxi",
-    amount: 280,
+    productId: 1,
+    productName: "Rayon Maxi",
+    amount: 1650,
     customer: "Fatima R.",
     status: "Pending",
+    gpayStatus: "Pending",
+    gpayScreenshotUrl: "https://placehold.co/320x200/FFB6C1/ffffff?text=GPay+Screenshot",
+    refereePhone: "2000000201",
     createdAt: new Date(Date.now() - MS_PER_DAY * 0.5).toISOString(),
     expectedDeliveryAt: new Date(Date.now() + MS_PER_DAY * 5).toISOString(),
     trackingCode: "TRK-8823",
   },
+  {
+    id: "#8824",
+    productId: 1,
+    productName: "Rayon Maxi",
+    amount: 1650,
+    customer: "Noor S.",
+    status: "Pending",
+    gpayStatus: "Pending",
+    gpayScreenshotUrl: "https://placehold.co/320x200/FF69B4/ffffff?text=GPay+Screenshot",
+    refereePhone: "2000000202",
+    createdAt: new Date(Date.now() - MS_PER_DAY * 1.2).toISOString(),
+    expectedDeliveryAt: new Date(Date.now() + MS_PER_DAY * 4.3).toISOString(),
+    trackingCode: "TRK-8824",
+  },
+  {
+    id: "#8825",
+    productId: 3,
+    productName: "Cotton Maxi",
+    amount: 2700,
+    customer: "Zainab A.",
+    status: "Pending",
+    gpayStatus: "Pending",
+    gpayScreenshotUrl: "https://placehold.co/320x200/2E8B57/ffffff?text=GPay+Screenshot",
+    refereePhone: "3000000201",
+    createdAt: new Date(Date.now() - MS_PER_DAY * 0.7).toISOString(),
+    expectedDeliveryAt: new Date(Date.now() + MS_PER_DAY * 5.2).toISOString(),
+    trackingCode: "TRK-8825",
+  },
+  // Paid (already verified) orders for analytics / charts.
+  ...Array.from({ length: 12 }).map((_, i) => {
+    const idx = i + 1;
+    return {
+      id: `#9100${idx}`,
+      productId: 2,
+      productName: "Dubai Silk Maxi",
+      amount: 2100,
+      customer: ["Aisha K.", "Priya M.", "Fatima R.", "Noor S.", "Sara J.", "Zainab A.", "Meena T."][i % 7]!,
+      status: "Approved",
+      gpayStatus: "Paid",
+      gpayScreenshotUrl: "https://placehold.co/320x200/8A2BE2/ffffff?text=Paid",
+      refereePhone: `10000000${idx}`,
+      createdAt: new Date(Date.now() - MS_PER_DAY * (20 + i)).toISOString(),
+      expectedDeliveryAt: new Date(Date.now() - MS_PER_DAY * 2).toISOString(),
+      trackingCode: `TRK-9100${idx}`,
+    } satisfies MockOrder;
+  }),
+  ...Array.from({ length: 6 }).map((_, i) => {
+    const idx = i + 1;
+    return {
+      id: `#9200${idx}`,
+      productId: 1,
+      productName: "Rayon Maxi",
+      amount: 1650,
+      customer: ["Amina S.", "Rashmi V.", "Hina P.", "Nida K.", "Asha J.", "Megha R."][i % 6]!,
+      status: "Approved",
+      gpayStatus: "Paid",
+      gpayScreenshotUrl: "https://placehold.co/320x200/FFB6C1/ffffff?text=Paid",
+      refereePhone: `200000000${idx}`,
+      createdAt: new Date(Date.now() - MS_PER_DAY * (18 + i)).toISOString(),
+      expectedDeliveryAt: new Date(Date.now() - MS_PER_DAY * 3).toISOString(),
+      trackingCode: `TRK-9200${idx}`,
+    } satisfies MockOrder;
+  }),
+  ...Array.from({ length: 4 }).map((_, i) => {
+    const idx = i + 1;
+    return {
+      id: `#9300${idx}`,
+      productId: 3,
+      productName: "Cotton Maxi",
+      amount: idx === 4 ? 2600 : 2700,
+      customer: ["Aamna N.", "Rashmi V.", "Noor S.", "Fatima R."][i % 4]!,
+      status: "Approved",
+      gpayStatus: "Paid",
+      gpayScreenshotUrl: "https://placehold.co/320x200/2E8B57/ffffff?text=Paid",
+      refereePhone: `300000000${idx}`,
+      createdAt: new Date(Date.now() - MS_PER_DAY * (25 + i)).toISOString(),
+      expectedDeliveryAt: new Date(Date.now() - MS_PER_DAY * 4).toISOString(),
+      trackingCode: `TRK-9300${idx}`,
+    } satisfies MockOrder;
+  }),
 ];
 let cartState: MockCartItem[] = [{ productId: 1, qty: 1, size: "L" }];
 
@@ -166,21 +266,85 @@ const rewardsState: RewardsState = {
   target: 10,
   referralLink: "https://hasee.in/ref/USR001",
   leads: [
-    // Delivered >= 15 days ago -> Paid
-    { phone: "9947428821", name: "Aisha K.", deliveryDate: new Date(Date.now() - MS_PER_DAY * 20).toISOString() },
-    { phone: "8765123456", name: "Priya M.", deliveryDate: new Date(Date.now() - MS_PER_DAY * 18).toISOString() },
-    { phone: "8912345678", name: "Fatima R.", deliveryDate: new Date(Date.now() - MS_PER_DAY * 30).toISOString(), refunded: true },
-    { phone: "8833123412", name: "Zainab A.", deliveryDate: new Date(Date.now() - MS_PER_DAY * 16).toISOString() },
-    { phone: "7744123450", name: "Noor S.", deliveryDate: new Date(Date.now() - MS_PER_DAY * 17).toISOString() },
-    { phone: "6655123409", name: "Sara J.", deliveryDate: new Date(Date.now() - MS_PER_DAY * 25).toISOString() },
+    // Pending gpay unlocks (delivery window < 15 days)
+    {
+      phone: "1000000201",
+      name: "Dubai Pending 1",
+      deliveryDate: new Date(Date.now() - MS_PER_DAY * 8).toISOString(),
+      referrerPhone: "6000000001",
+      referrerName: "Rahul K.",
+      productCategory: "Dubai",
+    },
+    {
+      phone: "1000000202",
+      name: "Dubai Pending 2",
+      deliveryDate: new Date(Date.now() - MS_PER_DAY * 8.2).toISOString(),
+      referrerPhone: "6000000002",
+      referrerName: "Meera S.",
+      productCategory: "Dubai",
+    },
+    {
+      phone: "2000000201",
+      name: "Rayon Pending 1",
+      deliveryDate: new Date(Date.now() - MS_PER_DAY * 7.6).toISOString(),
+      referrerPhone: "6000000003",
+      referrerName: "Sana M.",
+      productCategory: "Rayon",
+    },
+    {
+      phone: "2000000202",
+      name: "Rayon Pending 2",
+      deliveryDate: new Date(Date.now() - MS_PER_DAY * 6.8).toISOString(),
+      referrerPhone: "6000000001",
+      referrerName: "Rahul K.",
+      productCategory: "Rayon",
+    },
+    {
+      phone: "3000000201",
+      name: "Cotton Pending 1",
+      deliveryDate: new Date(Date.now() - MS_PER_DAY * 5.1).toISOString(),
+      referrerPhone: "6000000002",
+      referrerName: "Meera S.",
+      productCategory: "Cotton",
+    },
 
-    // Delivered < 15 days ago -> Pending
-    { phone: "9876543210", name: "Meena T.", deliveryDate: new Date(Date.now() - MS_PER_DAY * 5).toISOString() },
-    { phone: "9123456789", name: "Hina P.", deliveryDate: new Date(Date.now() - MS_PER_DAY * 9).toISOString() },
-
-    // No deliveryDate -> Clicked
-    { phone: "7654321098", name: "Aamna N." },
-    { phone: "5544332211", name: "Rashmi V." },
+    // Paid + refunded leads (delivery window >= 15 days)
+    ...Array.from({ length: 12 }).map((_, i) => {
+      const idx = i + 1;
+      return {
+        phone: `10000000${idx}`,
+        name: `Dubai Paid ${idx}`,
+        deliveryDate: new Date(Date.now() - MS_PER_DAY * (20 + i * 0.15)).toISOString(),
+        refunded: idx <= 3, // ~25% Dubai refund rate (meets >= 20% highlight)
+        referrerPhone: idx % 3 === 0 ? "6000000003" : idx % 3 === 1 ? "6000000001" : "6000000002",
+        referrerName: idx % 3 === 0 ? "Sana M." : idx % 3 === 1 ? "Rahul K." : "Meera S.",
+        productCategory: "Dubai",
+      } satisfies RewardsLeadBase;
+    }),
+    ...Array.from({ length: 6 }).map((_, i) => {
+      const idx = i + 1;
+      return {
+        phone: `200000000${idx}`,
+        name: `Rayon Paid ${idx}`,
+        deliveryDate: new Date(Date.now() - MS_PER_DAY * (19 + i * 0.2)).toISOString(),
+        refunded: idx === 2 ? true : false,
+        referrerPhone: idx % 3 === 0 ? "6000000002" : idx % 3 === 1 ? "6000000001" : "6000000003",
+        referrerName: idx % 3 === 0 ? "Meera S." : idx % 3 === 1 ? "Rahul K." : "Sana M.",
+        productCategory: "Rayon",
+      } satisfies RewardsLeadBase;
+    }),
+    ...Array.from({ length: 4 }).map((_, i) => {
+      const idx = i + 1;
+      return {
+        phone: `300000000${idx}`,
+        name: `Cotton Paid ${idx}`,
+        deliveryDate: new Date(Date.now() - MS_PER_DAY * (21 + i * 0.12)).toISOString(),
+        refunded: false,
+        referrerPhone: idx % 3 === 0 ? "6000000001" : idx % 3 === 1 ? "6000000002" : "6000000003",
+        referrerName: idx % 3 === 0 ? "Rahul K." : idx % 3 === 1 ? "Meera S." : "Sana M.",
+        productCategory: "Cotton",
+      } satisfies RewardsLeadBase;
+    }),
   ],
 };
 
@@ -215,6 +379,12 @@ export async function toggleProductLike(productId: number): Promise<{ liked: boo
     liked: likedProductIds.has(productId),
     likeCount: productLikesState[productId] ?? 0,
   };
+}
+
+export async function resetProductLikes(productId: number): Promise<void> {
+  await sleep(MOCK_LATENCY_MS);
+  productLikesState[productId] = 0;
+  likedProductIds.delete(productId);
 }
 
 export async function getProductLikeCounts(): Promise<Record<number, number>> {
@@ -332,7 +502,41 @@ export async function getReviewsByProductId(productId: number): Promise<Review[]
 
 export async function getCommunityPosts(): Promise<CommunityPostView[]> {
   await sleep(MOCK_LATENCY_MS);
+  // Public homepage: only show approved style photos.
+  return communityPostsState
+    .filter((p) => p.approved !== false)
+    .sort((a, b) => Number(!!b.featured) - Number(!!a.featured))
+    .map((p) => ({ ...p, liked: likedCommunityPostIds.has(p.id) }));
+}
+
+// Admin view: show all customer posts, including pending/unapproved.
+export async function getCommunityModerationPosts(): Promise<CommunityPostView[]> {
+  await sleep(MOCK_LATENCY_MS);
   return communityPostsState.map((p) => ({ ...p, liked: likedCommunityPostIds.has(p.id) }));
+}
+
+export async function approveCommunityPost(postId: number, featured = false): Promise<void> {
+  await sleep(MOCK_LATENCY_MS);
+  communityPostsState = communityPostsState.map((p) =>
+    p.id === postId
+      ? {
+          ...p,
+          approved: true,
+          featured,
+        }
+      : p,
+  );
+}
+
+export async function deleteCommunityPost(postId: number): Promise<void> {
+  await sleep(MOCK_LATENCY_MS);
+  communityPostsState = communityPostsState.filter((p) => p.id !== postId);
+  likedCommunityPostIds.delete(postId);
+}
+
+export async function setCommunityFeatured(postId: number, featured: boolean): Promise<void> {
+  await sleep(MOCK_LATENCY_MS);
+  communityPostsState = communityPostsState.map((p) => (p.id === postId ? { ...p, featured } : p));
 }
 
 export async function toggleCommunityLike(postId: number): Promise<CommunityPostView> {
@@ -367,17 +571,57 @@ export async function approveOrder(orderId: string): Promise<void> {
           ...o,
           status: "Approved",
           approvedAt: now.toISOString(),
+          gpayStatus: "Paid",
           // After approval, estimate delivery for 2 more days.
           expectedDeliveryAt: new Date(Date.now() + MS_PER_DAY * 2).toISOString(),
         }
       : o,
   );
+
+  // Trigger referral eligibility update for the referee (mock delivery).
+  const updated = ordersState.find((o) => o.id === orderId);
+  if (updated?.refereePhone) {
+    const deliveryDate = new Date(Date.now() - MS_PER_DAY * 20).toISOString(); // days > 15
+    rewardsState.leads = rewardsState.leads.map((lead) =>
+      lead.phone === updated.refereePhone
+        ? {
+            ...lead,
+            refunded: false,
+            deliveryDate,
+          }
+        : lead,
+    );
+  }
 }
 
 export async function rejectOrder(orderId: string): Promise<void> {
   await sleep(MOCK_LATENCY_MS);
   const now = new Date();
-  ordersState = ordersState.map((o) => (o.id === orderId ? { ...o, status: "Rejected", rejectedAt: now.toISOString() } : o));
+  ordersState = ordersState.map((o) =>
+    o.id === orderId
+      ? {
+          ...o,
+          status: "Rejected",
+          rejectedAt: now.toISOString(),
+          gpayStatus: "Rejected",
+        }
+      : o,
+  );
+
+  // Keep the referee in "not eligible" state (mock pending window).
+  const updated = ordersState.find((o) => o.id === orderId);
+  if (updated?.refereePhone) {
+    const deliveryDate = new Date(Date.now() - MS_PER_DAY * 8).toISOString(); // <= 15 => Pending
+    rewardsState.leads = rewardsState.leads.map((lead) =>
+      lead.phone === updated.refereePhone
+        ? {
+            ...lead,
+            refunded: false,
+            deliveryDate,
+          }
+        : lead,
+    );
+  }
 }
 
 export async function getCart(): Promise<MockCartItem[]> {
@@ -504,7 +748,8 @@ export async function getRewardsData(): Promise<RewardsData> {
 
     const deliveryTs = new Date(lead.deliveryDate).getTime();
     const daysSinceDelivery = (now - deliveryTs) / MS_PER_DAY;
-    const status = daysSinceDelivery < 15 ? "Pending" : "Paid";
+    // "Safe zone" rule: successful only when days > 15 and not refunded.
+    const status = daysSinceDelivery > 15 ? "Paid" : "Pending";
     return { ...lead, status };
   });
 
