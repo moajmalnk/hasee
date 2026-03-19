@@ -201,7 +201,7 @@ export default function Cart() {
       navigate(`/login?next=${encodeURIComponent(returnToCartWithPlaceOrderFlag)}`);
       return;
     }
-    if (!session.onboardingComplete) {
+    if (session.role !== "ADMIN" && !session.onboardingComplete) {
       // Go to onboarding once; on completion we return here and auto-place the order.
       navigate(`/onboarding?next=${encodeURIComponent(returnToCartWithPlaceOrderFlag)}`);
       return;

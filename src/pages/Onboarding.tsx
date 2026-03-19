@@ -13,7 +13,19 @@ export default function Onboarding() {
   useEffect(() => {
     void (async () => {
       const s = await getSession().catch(() => null);
-      if (!s?.loggedIn) navigate(`/login?next=${encodeURIComponent(next)}`);
+      if (!s?.loggedIn) {
+        navigate(`/login?next=${encodeURIComponent(next)}`);
+        return;
+      }
+      // Admins don't need onboarding.
+      if (s?.role === "ADMIN") {
+        navigate(next);
+        return;
+      }
+      // Customers should only see onboarding if not completed yet.
+      if (s?.onboardingComplete) {
+        navigate(next);
+      }
     })();
   }, [navigate, next]);
 

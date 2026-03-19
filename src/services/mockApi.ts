@@ -547,6 +547,7 @@ export async function login(input: { email: string; password: string }): Promise
   if (!isAdmin && !isCustomer) throw new Error("Invalid credentials (mock)");
 
   const role: Role = isAdmin ? "ADMIN" : "CUSTOMER";
+  const onboardingComplete = role === "ADMIN";
 
   sessionState = {
     ...sessionState,
@@ -554,7 +555,7 @@ export async function login(input: { email: string; password: string }): Promise
     role,
     email,
     userName: role === "ADMIN" ? "Hasee Admin" : "Hasee User",
-    onboardingComplete: false,
+    onboardingComplete,
     onboarding: undefined,
   };
 

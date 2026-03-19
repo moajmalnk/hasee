@@ -8,6 +8,7 @@ import {
   deleteDeliveryAddress,
   getDeliveryAddresses,
   getProfile,
+  getSession,
   logout,
   updateDeliveryAddress,
   updateProfile,
@@ -20,13 +21,6 @@ import { Switch } from '@/components/ui/switch';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
 const colorOptions = ["Red", "Blue", "Green", "Black", "White", "Pink", "Orange", "Purple"];
-
-const menuItems = [
-  { icon: Package, label: "My Orders", href: "/my-orders" },
-  { icon: Heart, label: "Wishlist", href: "/wishlist" },
-  { icon: Settings, label: "Settings", href: "/settings" },
-  { icon: LogOut, label: "Logout", href: null },
-];
 
 export default function Profile() {
   const navigate = useNavigate();
@@ -51,6 +45,7 @@ export default function Profile() {
   const [editFavoriteColors, setEditFavoriteColors] = useState<string[]>([]);
   const [editProfilePhotoUrlPreview, setEditProfilePhotoUrlPreview] = useState<string | null>(null);
   const [editProfilePhotoChanged, setEditProfilePhotoChanged] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   const toggleFavoriteColor = (c: string, checked: boolean) => {
     setEditFavoriteColors((prev) => {
@@ -84,6 +79,8 @@ export default function Profile() {
 
   const [addressDialogOpen, setAddressDialogOpen] = useState(false);
   const [editingAddressId, setEditingAddressId] = useState<string | null>(null);
+  const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
+  const [loggingOut, setLoggingOut] = useState(false);
   const [addressForm, setAddressForm] = useState<{
     label: string;
     recipientName: string;
@@ -120,6 +117,25 @@ export default function Profile() {
   useEffect(() => {
     void (async () => {
       try {
+        const s = await getSession();
+        setIsAdmin(s.role === "ADMIN");
+      } catch {
+        // keep default false
+      }
+    })();
+  }, []);
+
+  const menuItems = [
+    ...(isAdmin ? [{ icon: Package, label: "Admin Portal", href: "/admin/dashboard" }] : []),
+    { icon: Package, label: "My Orders", href: "/my-orders" },
+    { icon: Heart, label: "Wishlist", href: "/wishlist" },
+    { icon: Settings, label: "Settings", href: "/settings" },
+    { icon: LogOut, label: "Logout", href: null },
+  ];
+
+  useEffect(() => {
+    void (async () => {
+      try {
         const data = await getDeliveryAddresses();
         setAddresses(data);
       } catch {
@@ -130,11 +146,14 @@ export default function Profile() {
 
   const onLogout = async () => {
     try {
+      setLoggingOut(true);
       await logout();
       toast.success("Logged out (mock)");
-      navigate('/');
+      navigate('/login');
     } catch {
       toast.error("Logout failed (mock)");
+    } finally {
+      setLoggingOut(false);
     }
   };
 
@@ -319,7 +338,7 @@ export default function Profile() {
               type="button"
               onClick={() => {
                 if (item.label === "Logout") {
-                  void onLogout();
+                  setLogoutDialogOpen(true);
                   return;
                 }
                 if (item.href) navigate(item.href);
@@ -616,6 +635,40 @@ export default function Profile() {
                 Cancel
               </Button>
             </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Logout confirmation dialog */}
+      <Dialog
+        open={logoutDialogOpen}
+        onOpenChange={(open) => {
+          setLogoutDialogOpen(open);
+          if (!open) setLoggingOut(false);
+        }}
+      >
+        <DialogContent className="rounded-2xl">
+          <DialogHeader>
+            <DialogTitle className="font-black">Logout?</DialogTitle>
+          </DialogHeader>
+          <p className="text-sm text-muted-foreground">Are you sure you want to log out of your account?</p>
+
+          <div className="flex gap-2 pt-3">
+            <Button
+              variant="outline"
+              className="flex-1 rounded-xl font-bold"
+              disabled={loggingOut}
+              onClick={() => setLogoutDialogOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              className="flex-1 rounded-xl font-bold"
+              disabled={loggingOut}
+              onClick={() => void onLogout()}
+            >
+              {loggingOut ? "Logging out..." : "Logout"}
+            </Button>
           </div>
         </DialogContent>
       </Dialog>

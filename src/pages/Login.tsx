@@ -33,6 +33,32 @@ export default function Login() {
           </p>
         </header>
 
+        <div className="bg-secondary/40 border border-border rounded-2xl p-4 space-y-3">
+          <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Mock Login Details</p>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="bg-background border border-border rounded-2xl p-3 space-y-1">
+              <p className="text-sm font-black text-foreground">Admin</p>
+              <p className="text-xs text-muted-foreground">
+                Email: <span className="font-mono font-bold text-foreground">admin@hasee.com</span>
+              </p>
+              <p className="text-xs text-muted-foreground">
+                Password: <span className="font-mono font-bold text-foreground">admin123</span>
+              </p>
+            </div>
+
+            <div className="bg-background border border-border rounded-2xl p-3 space-y-1">
+              <p className="text-sm font-black text-foreground">Customer</p>
+              <p className="text-xs text-muted-foreground">
+                Email: <span className="font-mono font-bold text-foreground">user@test.com</span>
+              </p>
+              <p className="text-xs text-muted-foreground">
+                Password: <span className="font-mono font-bold text-foreground">user123</span>
+              </p>
+            </div>
+          </div>
+        </div>
+
         <div className="bg-card border border-border rounded-2xl p-4 sm:p-5">
           <LoginForm
             onLogin={async (input) => {
