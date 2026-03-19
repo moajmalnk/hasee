@@ -19,6 +19,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import ConfirmDeleteDialog from "@/components/admin/ConfirmDeleteDialog";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Eye } from "lucide-react";
+import { useNotificationCenter } from "@/context/NotificationCenterContext";
+import { notifyApp } from "@/services/notifications";
 
 type AdminOrder = MockOrder & {
   gpayScreenshotUrl?: string;
@@ -41,6 +43,7 @@ export default function Orders() {
 
   const [viewOpen, setViewOpen] = useState(false);
   const [viewOrder, setViewOrder] = useState<AdminOrder | null>(null);
+  const { addNotification } = useNotificationCenter();
 
   useEffect(() => {
     let cancelled = false;
@@ -59,7 +62,7 @@ export default function Orders() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [addNotification]);
 
   // Queue only: pending gpay verifications.
   const queue = useMemo(() => {
@@ -178,7 +181,16 @@ export default function Orders() {
                 onConfirm={async () => {
                   try {
                     await approveOrder(order.id);
-                    toast.success(`GPay verified for ${order.id} (mock)`);
+                    notifyApp(
+                      {
+                        title: "Payment approved",
+                        message: `GPay verified for ${order.id} (mock).`,
+                        priority: "success",
+                        source: "admin-orders",
+                        browser: { tag: `order-${order.id}-approved` },
+                      },
+                      { center: { addNotification }, allowBrowserNotification: true },
+                    );
                     setOrders(await getOrders());
                   } catch {
                     toast.error("Failed to approve (mock)");
@@ -204,7 +216,16 @@ export default function Orders() {
                 onConfirm={async () => {
                   try {
                     await rejectOrder(order.id);
-                    toast.error(`GPay rejected for ${order.id}`);
+                    notifyApp(
+                      {
+                        title: "Payment rejected",
+                        message: `GPay rejected for ${order.id}.`,
+                        priority: "error",
+                        source: "admin-orders",
+                        browser: { tag: `order-${order.id}-rejected` },
+                      },
+                      { center: { addNotification }, allowBrowserNotification: true },
+                    );
                     setOrders(await getOrders());
                   } catch {
                     toast.error("Failed to reject (mock)");

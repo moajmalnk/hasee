@@ -11,11 +11,13 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useNavigate } from "react-router-dom";
-import { toast } from "sonner";
+import { notifyApp } from "@/services/notifications";
+import { useNotificationCenter } from "@/context/NotificationCenterContext";
 
 export default function AdminTopBar() {
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
+  const { notifications, unreadCount, addNotification, markAllAsRead, clearAll } = useNotificationCenter();
 
   const liveSalesCount = useMemo(() => 5, []);
 
@@ -58,12 +60,22 @@ export default function AdminTopBar() {
             variant="ghost"
             size="icon"
             className="relative w-10 h-10 rounded-full hover:bg-secondary/80"
-            onClick={() => toast.info("Live Sales (mock)")}
+            onClick={() =>
+              notifyApp(
+                {
+                  title: "Live sales update",
+                  message: "You have 5 active sales updates in queue (mock).",
+                  priority: "info",
+                  source: "admin-live-sales",
+                },
+                { center: { addNotification } },
+              )
+            }
             aria-label="Live sales notifications"
           >
             <Bell className="w-5 h-5 text-muted-foreground dark:text-slate-200" strokeWidth={1.5} />
             <span className="absolute -top-1 -right-1 min-w-5 h-5 px-1 rounded-full bg-primary text-primary-foreground text-[10px] font-extrabold flex items-center justify-center border border-slate-900/40">
-              {liveSalesCount}
+              {Math.max(liveSalesCount, unreadCount)}
             </span>
           </Button>
 
@@ -92,8 +104,38 @@ export default function AdminTopBar() {
                 </div>
               </div>
               <DropdownMenuSeparator />
+              <div className="px-2 py-1.5 space-y-1 max-h-72 overflow-auto">
+                {notifications.length === 0 ? (
+                  <p className="text-xs text-muted-foreground px-2 py-2">No notifications yet.</p>
+                ) : (
+                  notifications.slice(0, 6).map((notification) => (
+                    <div key={notification.id} className="px-2 py-2 rounded-lg bg-secondary/40 border border-border/50">
+                      <p className="text-xs font-bold text-foreground">{notification.title}</p>
+                      <p className="text-xs text-muted-foreground mt-0.5">{notification.message}</p>
+                    </div>
+                  ))
+                )}
+              </div>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={markAllAsRead}>Mark all as read</DropdownMenuItem>
+              <DropdownMenuItem onClick={clearAll}>Clear all notifications</DropdownMenuItem>
+              <DropdownMenuSeparator />
               <DropdownMenuItem onClick={() => navigate("/admin/dashboard")}>Dashboard</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => toast.info("Profile (mock)")}>Profile</DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() =>
+                  notifyApp(
+                    {
+                      title: "Profile",
+                      message: "Profile panel is mocked in this build.",
+                      priority: "info",
+                      source: "admin-profile",
+                    },
+                    { center: { addNotification } },
+                  )
+                }
+              >
+                Profile
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>

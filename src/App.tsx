@@ -1,8 +1,9 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
-import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { NotificationCenterProvider } from "@/context/NotificationCenterContext";
+import { usePwaLifecycle } from "@/hooks/usePwaLifecycle";
 import Index from "./pages/Index.tsx";
 import Categories from "./pages/Categories.tsx";
 import Rewards from "./pages/Rewards.tsx";
@@ -26,37 +27,42 @@ import PrivacyPolicy from "./pages/PrivacyPolicy.tsx";
 
 const queryClient = new QueryClient();
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/categories" element={<Categories />} />
-          <Route path="/sale" element={<Sale />} />
-          <Route path="/rewards" element={<Rewards />} />
-          <Route path="/cart" element={<Cart />} />
-          <Route path="/community" element={<Community />} />
-          <Route path="/product/:id" element={<ProductDetail />} />
-          <Route path="/profile" element={<Profile />} />
-          <Route path="/my-orders" element={<MyOrders />} />
-          <Route path="/wishlist" element={<Wishlist />} />
-          <Route path="/settings" element={<Settings />} />
-          <Route path="/admin/*" element={<AdminDashboard />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/onboarding" element={<Onboarding />} />
-          <Route path="/claim-reward" element={<ClaimReward />} />
-          <Route path="/refund-policy" element={<RefundPolicy />} />
-          <Route path="/terms-of-use" element={<TermsOfUse />} />
-          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-          <Route path="/comments/:productId" element={<Comments />} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
+const App = () => {
+  usePwaLifecycle();
+
+  return (
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <NotificationCenterProvider>
+          <Sonner />
+          <BrowserRouter>
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/categories" element={<Categories />} />
+              <Route path="/sale" element={<Sale />} />
+              <Route path="/rewards" element={<Rewards />} />
+              <Route path="/cart" element={<Cart />} />
+              <Route path="/community" element={<Community />} />
+              <Route path="/product/:id" element={<ProductDetail />} />
+              <Route path="/profile" element={<Profile />} />
+              <Route path="/my-orders" element={<MyOrders />} />
+              <Route path="/wishlist" element={<Wishlist />} />
+              <Route path="/settings" element={<Settings />} />
+              <Route path="/admin/*" element={<AdminDashboard />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/onboarding" element={<Onboarding />} />
+              <Route path="/claim-reward" element={<ClaimReward />} />
+              <Route path="/refund-policy" element={<RefundPolicy />} />
+              <Route path="/terms-of-use" element={<TermsOfUse />} />
+              <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+              <Route path="/comments/:productId" element={<Comments />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </BrowserRouter>
+        </NotificationCenterProvider>
+      </TooltipProvider>
+    </QueryClientProvider>
+  );
+};
 
 export default App;

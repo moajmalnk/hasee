@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" role="img" aria-label="Hasee Maxi icon">
+  <rect width="512" height="512" rx="112" fill="#f3e8ff" />
+  <rect x="58" y="58" width="396" height="396" rx="90" fill="#ec4899" />
+  <path d="M160 156h60v85h86v-85h60v200h-60v-64h-86v64h-60z" fill="#ffffff" />
+</svg>
