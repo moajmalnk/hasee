@@ -22,7 +22,7 @@ export default function AdminTopBar() {
   const liveSalesCount = useMemo(() => 5, []);
 
   return (
-    <header className="sticky top-0 z-40 h-14 border-b border-border bg-background/80 backdrop-blur dark:border-slate-800/60 dark:bg-slate-950/70">
+    <header className="sticky top-0 z-40 h-14 border-b border-border bg-white/95 backdrop-blur">
       <div className="flex items-center justify-between gap-3 px-4 md:px-6 h-full">
         <div className="flex items-center gap-3 min-w-0">
           <div className="md:hidden">
@@ -34,23 +34,23 @@ export default function AdminTopBar() {
               <span className="text-primary-foreground text-xs font-black">H</span>
             </div>
             <div className="leading-tight">
-              <p className="text-sm font-black text-foreground dark:text-slate-100">Hasee Admin</p>
-              <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest dark:text-slate-300">
-                Pink & Slate
+              <p className="text-sm font-black text-foreground">Hasee Admin</p>
+              <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
+                Pink & White
               </p>
             </div>
           </div>
 
           <div className="relative hidden lg:block w-[420px]">
             <Search
-              className="w-4 h-4 text-muted-foreground absolute left-3 top-1/2 -translate-y-1/2 dark:text-slate-300"
+              className="w-4 h-4 text-muted-foreground absolute left-3 top-1/2 -translate-y-1/2"
               strokeWidth={1.5}
             />
             <Input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search (mock)…"
-              className="h-10 pl-9 bg-secondary/70 border-border rounded-full text-foreground placeholder:text-muted-foreground dark:bg-slate-900/60 dark:border-slate-800/70 dark:text-slate-100 dark:placeholder:text-slate-400"
+              className="h-10 pl-9 bg-white border-border rounded-full text-foreground placeholder:text-muted-foreground"
             />
           </div>
         </div>
@@ -73,8 +73,8 @@ export default function AdminTopBar() {
             }
             aria-label="Live sales notifications"
           >
-            <Bell className="w-5 h-5 text-muted-foreground dark:text-slate-200" strokeWidth={1.5} />
-            <span className="absolute -top-1 -right-1 min-w-5 h-5 px-1 rounded-full bg-primary text-primary-foreground text-[10px] font-extrabold flex items-center justify-center border border-slate-900/40">
+            <Bell className="w-5 h-5 text-muted-foreground" strokeWidth={1.5} />
+            <span className="absolute -top-1 -right-1 min-w-5 h-5 px-1 rounded-full bg-primary text-primary-foreground text-[10px] font-extrabold flex items-center justify-center border border-border">
               {Math.max(liveSalesCount, unreadCount)}
             </span>
           </Button>
@@ -83,10 +83,10 @@ export default function AdminTopBar() {
             <DropdownMenuTrigger asChild>
               <Button
                 variant="outline"
-              className="h-10 rounded-full border-border/70 bg-secondary/50 hover:bg-secondary/80 dark:border-slate-800/70 dark:bg-slate-900/30 dark:hover:bg-slate-900/50"
+              className="h-10 rounded-full border-border bg-white hover:bg-muted"
               >
-              <UserCircle2 className="w-5 h-5 text-muted-foreground dark:text-slate-200" strokeWidth={1.5} />
-              <span className="ml-2 hidden sm:inline text-sm font-bold text-foreground dark:text-slate-100">
+              <UserCircle2 className="w-5 h-5 text-muted-foreground" strokeWidth={1.5} />
+              <span className="ml-2 hidden sm:inline text-sm font-bold text-foreground">
                 Admin
               </span>
               </Button>

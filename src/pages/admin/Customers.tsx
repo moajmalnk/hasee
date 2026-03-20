@@ -167,8 +167,8 @@ export default function AdminCustomers() {
         header: "Customer",
         cell: ({ row }) => (
           <div className="min-w-0">
-            <div className="font-bold text-slate-100 truncate">{row.original.name}</div>
-            <div className="text-xs text-slate-300 truncate">#{row.original.id}</div>
+            <div className="font-bold text-foreground truncate">{row.original.name}</div>
+            <div className="text-xs text-muted-foreground truncate">#{row.original.id}</div>
           </div>
         ),
       },
@@ -178,7 +178,7 @@ export default function AdminCustomers() {
         enableSorting: false,
         cell: ({ row }) => (
           <div className="flex items-center gap-2">
-            <span className="font-mono text-slate-200 text-sm">{row.original.whatsappNumber}</span>
+            <span className="font-mono text-foreground text-sm">{row.original.whatsappNumber}</span>
             <a
               href={whatsappUrl(row.original.whatsappNumber, "Hi! I need help with Hasee Maxi.")}
               target="_blank"
@@ -194,7 +194,7 @@ export default function AdminCustomers() {
       {
         accessorKey: "location",
         header: "Location",
-        cell: ({ row }) => <span className="text-slate-200">{row.original.location}</span>,
+        cell: ({ row }) => <span className="text-foreground">{row.original.location}</span>,
       },
       {
         accessorKey: "favoriteColors",
@@ -208,7 +208,7 @@ export default function AdminCustomers() {
               </span>
             ))}
             {row.original.favoriteColors.length > 3 ? (
-              <span className="text-[10px] px-2 py-1 rounded-full font-bold bg-secondary text-slate-300">
+              <span className="text-[10px] px-2 py-1 rounded-full font-bold bg-secondary text-muted-foreground">
                 +{row.original.favoriteColors.length - 3}
               </span>
             ) : null}
@@ -221,7 +221,7 @@ export default function AdminCustomers() {
         enableSorting: false,
         cell: ({ row }) => (
           <div className="flex items-center gap-2">
-            <Button size="sm" variant="outline" className="rounded-xl font-bold border-slate-700" onClick={() => openEdit(row.original)}>
+            <Button size="sm" variant="outline" className="rounded-xl font-bold border-border" onClick={() => openEdit(row.original)}>
               <Edit2 className="w-4 h-4 mr-1" strokeWidth={1.5} />
               Edit
             </Button>
@@ -258,11 +258,11 @@ export default function AdminCustomers() {
     <div className="space-y-4">
       <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
         <div className="space-y-1">
-          <h1 className="text-2xl font-black text-slate-50 flex items-center gap-2">
+          <h1 className="text-2xl font-black text-foreground flex items-center gap-2">
             <Users className="w-6 h-6" strokeWidth={1.5} />
             Customers & Members
           </h1>
-          <p className="text-sm text-slate-300">Manage contact details and favorite colors (mock).</p>
+          <p className="text-sm text-muted-foreground">Manage contact details and favorite colors (mock).</p>
         </div>
         <div className="flex gap-2 w-full md:w-auto">
           <div className="w-full md:w-72">
@@ -270,7 +270,7 @@ export default function AdminCustomers() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search customers…"
-              className="rounded-xl bg-slate-900/40 border-slate-800 text-slate-100 placeholder:text-slate-400"
+              className="rounded-xl bg-white border-border text-foreground placeholder:text-muted-foreground"
             />
           </div>
           <Button className="rounded-xl font-bold" onClick={openCreate}>
@@ -280,15 +280,15 @@ export default function AdminCustomers() {
       </div>
 
       {loading ? (
-        <div className="bg-slate-900/40 border border-slate-800 rounded-2xl p-5 text-slate-300">Loading…</div>
+        <div className="bg-white border border-border rounded-2xl p-5 text-muted-foreground">Loading…</div>
       ) : (
-        <div className="bg-slate-900/30 border border-slate-800 rounded-2xl overflow-hidden">
+        <div className="bg-white border border-border rounded-2xl overflow-hidden">
           <Table>
             <TableHeader>
               {table.getHeaderGroups().map((headerGroup) => (
                 <TableRow key={headerGroup.id}>
                   {headerGroup.headers.map((header) => (
-                    <TableHead key={header.id} className="text-slate-300 bg-slate-900/40 border-slate-800">
+                    <TableHead key={header.id} className="text-muted-foreground bg-muted/40 border-border">
                       {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
                     </TableHead>
                   ))}
@@ -297,9 +297,9 @@ export default function AdminCustomers() {
             </TableHeader>
             <TableBody>
               {table.getRowModel().rows.map((row) => (
-                <TableRow key={row.id} className="border-slate-800">
+                <TableRow key={row.id} className="border-border">
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id} className="text-slate-200 border-slate-800">
+                    <TableCell key={cell.id} className="text-foreground border-border">
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </TableCell>
                   ))}
@@ -319,29 +319,29 @@ export default function AdminCustomers() {
           }
         }}
       >
-        <DialogContent className="rounded-2xl bg-slate-950 border-slate-800 text-slate-100 max-w-2xl">
+        <DialogContent className="rounded-2xl bg-white border-border text-foreground max-w-2xl">
           <DialogHeader>
             <DialogTitle className="font-black">{draft.id ? "Edit customer" : "Add customer"}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 pt-2">
             <div className="space-y-2">
-              <p className="text-xs font-bold text-slate-300">Name</p>
-              <Input value={draft.name} onChange={(e) => setDraft((d) => ({ ...d, name: e.target.value }))} className="rounded-xl bg-slate-900/40 border-slate-800 text-slate-100" />
+              <p className="text-xs font-bold text-muted-foreground">Name</p>
+              <Input value={draft.name} onChange={(e) => setDraft((d) => ({ ...d, name: e.target.value }))} className="rounded-xl bg-white border-border text-foreground" />
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="space-y-2">
-                <p className="text-xs font-bold text-slate-300">WhatsApp number</p>
-                <Input value={draft.whatsappNumber} onChange={(e) => setDraft((d) => ({ ...d, whatsappNumber: e.target.value }))} className="rounded-xl bg-slate-900/40 border-slate-800 text-slate-100" />
+                <p className="text-xs font-bold text-muted-foreground">WhatsApp number</p>
+                <Input value={draft.whatsappNumber} onChange={(e) => setDraft((d) => ({ ...d, whatsappNumber: e.target.value }))} className="rounded-xl bg-white border-border text-foreground" />
               </div>
               <div className="space-y-2">
-                <p className="text-xs font-bold text-slate-300">Location</p>
-                <Input value={draft.location} onChange={(e) => setDraft((d) => ({ ...d, location: e.target.value }))} className="rounded-xl bg-slate-900/40 border-slate-800 text-slate-100" />
+                <p className="text-xs font-bold text-muted-foreground">Location</p>
+                <Input value={draft.location} onChange={(e) => setDraft((d) => ({ ...d, location: e.target.value }))} className="rounded-xl bg-white border-border text-foreground" />
               </div>
             </div>
 
             <div className="space-y-2">
-              <p className="text-xs font-bold text-slate-300">Favorite colors (comma separated)</p>
+              <p className="text-xs font-bold text-muted-foreground">Favorite colors (comma separated)</p>
               <Input
                 value={draft.favoriteColors.join(", ")}
                 onChange={(e) =>
@@ -353,7 +353,7 @@ export default function AdminCustomers() {
                       .filter(Boolean),
                   }))
                 }
-                className="rounded-xl bg-slate-900/40 border-slate-800 text-slate-100"
+                className="rounded-xl bg-white border-border text-foreground"
               />
             </div>
 
@@ -363,7 +363,7 @@ export default function AdminCustomers() {
               </Button>
               <Button
                 variant="outline"
-                className="flex-1 rounded-xl font-bold border-slate-800 text-slate-200"
+                className="flex-1 rounded-xl font-bold border-border text-foreground"
                 onClick={() => {
                   setCreateOpen(false);
                   setEditOpen(false);

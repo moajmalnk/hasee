@@ -269,8 +269,8 @@ export default function AdminProducts() {
               className="w-10 h-12 rounded-lg object-cover bg-secondary"
             />
             <div className="min-w-0">
-              <div className="font-bold text-slate-100 truncate">{row.original.name}</div>
-              <div className="text-xs text-slate-300">{row.original.category}</div>
+              <div className="font-bold text-foreground truncate">{row.original.name}</div>
+              <div className="text-xs text-muted-foreground">{row.original.category}</div>
             </div>
           </div>
         ),
@@ -278,16 +278,16 @@ export default function AdminProducts() {
       {
         accessorKey: "price",
         header: "Price",
-        cell: ({ row }) => <span className="font-bold text-slate-100">₹{row.original.price}</span>,
+        cell: ({ row }) => <span className="font-bold text-foreground">₹{row.original.price}</span>,
       },
       {
         accessorKey: "imageArray",
         header: "Media",
         enableSorting: false,
         cell: ({ row }) => (
-          <div className="flex items-center gap-2 text-slate-200">
+          <div className="flex items-center gap-2 text-muted-foreground">
             <span className="text-sm">{row.original.imageArray.length} images</span>
-            {row.original.videoUrl ? <Video className="w-4 h-4 text-slate-200" /> : null}
+            {row.original.videoUrl ? <Video className="w-4 h-4 text-muted-foreground" /> : null}
           </div>
         ),
       },
@@ -303,7 +303,7 @@ export default function AdminProducts() {
               </span>
             ))}
             {row.original.availableColors.length > 3 ? (
-              <span className="text-[10px] px-2 py-1 rounded-full font-bold bg-secondary text-slate-300">
+              <span className="text-[10px] px-2 py-1 rounded-full font-bold bg-secondary text-muted-foreground">
                 +{row.original.availableColors.length - 3}
               </span>
             ) : null}
@@ -318,7 +318,7 @@ export default function AdminProducts() {
           const p = row.original;
           return (
             <div className="flex items-center gap-2">
-              <Button size="sm" variant="outline" className="rounded-xl font-bold border-slate-700" onClick={() => openEdit(p)}>
+              <Button size="sm" variant="outline" className="rounded-xl font-bold border-border" onClick={() => openEdit(p)}>
                 <Edit2 className="w-4 h-4 mr-1" strokeWidth={1.5} />
                 Edit
               </Button>
@@ -356,8 +356,8 @@ export default function AdminProducts() {
     <div className="space-y-4">
       <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
         <div className="space-y-1">
-          <h1 className="text-2xl font-black text-slate-50">Products CRUD</h1>
-          <p className="text-sm text-slate-300">Manage products, media, and pricing (mock).</p>
+          <h1 className="text-2xl font-black text-foreground">Products CRUD</h1>
+          <p className="text-sm text-muted-foreground">Manage products, media, and pricing (mock).</p>
         </div>
         <div className="flex gap-2 w-full md:w-auto">
           <div className="w-full md:w-72">
@@ -365,7 +365,7 @@ export default function AdminProducts() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search products…"
-              className="rounded-xl bg-slate-900/40 border-slate-800 text-slate-100 placeholder:text-slate-400"
+              className="rounded-xl bg-white border-border text-foreground placeholder:text-muted-foreground"
             />
           </div>
           <Button className="rounded-xl font-bold" onClick={openCreate}>
@@ -375,13 +375,13 @@ export default function AdminProducts() {
         </div>
       </div>
 
-      <div className="bg-slate-900/30 border border-slate-800 rounded-2xl overflow-hidden">
+      <div className="bg-white border border-border rounded-2xl overflow-hidden">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
-                  <TableHead key={header.id} className="text-slate-300 bg-slate-900/40 border-slate-800">
+                  <TableHead key={header.id} className="text-muted-foreground bg-muted/40 border-border">
                     {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
                   </TableHead>
                 ))}
@@ -390,9 +390,9 @@ export default function AdminProducts() {
           </TableHeader>
           <TableBody>
             {table.getRowModel().rows.map((row) => (
-              <TableRow key={row.id} className="border-slate-800">
+              <TableRow key={row.id} className="border-border">
                 {row.getVisibleCells().map((cell) => (
-                  <TableCell key={cell.id} className="text-slate-200 border-slate-800">
+                  <TableCell key={cell.id} className="text-foreground border-border">
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </TableCell>
                 ))}
@@ -404,7 +404,7 @@ export default function AdminProducts() {
 
       {/* Create / Edit Dialog */}
       <Dialog open={createOpen || editOpen} onOpenChange={(o) => { if (!o) { setCreateOpen(false); setEditOpen(false); } }}>
-        <DialogContent className="rounded-2xl bg-slate-950 border-slate-800 text-slate-100 max-w-2xl">
+        <DialogContent className="rounded-2xl bg-white border-border text-foreground max-w-2xl">
           <DialogHeader>
             <DialogTitle className="font-black">{draft.id != null ? "Edit product" : "Add product"}</DialogTitle>
           </DialogHeader>
@@ -412,18 +412,18 @@ export default function AdminProducts() {
           <div className="space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="space-y-2">
-                <p className="text-xs font-bold text-slate-300">Name</p>
-                <Input value={draft.name} onChange={(e) => setDraft((d) => ({ ...d, name: e.target.value }))} className="rounded-xl bg-slate-900/40 border-slate-800 text-slate-100" />
+                <p className="text-xs font-bold text-muted-foreground">Name</p>
+                <Input value={draft.name} onChange={(e) => setDraft((d) => ({ ...d, name: e.target.value }))} className="rounded-xl bg-white border-border text-foreground" />
               </div>
               <div className="space-y-2">
-                <p className="text-xs font-bold text-slate-300">Category</p>
+                <p className="text-xs font-bold text-muted-foreground">Category</p>
                 <Select value={draft.category} onValueChange={(v) => setDraft((d) => ({ ...d, category: v }))}>
-                  <SelectTrigger className="rounded-xl bg-slate-900/40 border-slate-800 text-slate-100">
+                  <SelectTrigger className="rounded-xl bg-white border-border text-foreground">
                     <SelectValue placeholder="Select category" />
                   </SelectTrigger>
-                  <SelectContent className="bg-slate-950 border-slate-800">
+                  <SelectContent className="bg-white border-border">
                     {categoryOptions.map((c) => (
-                      <SelectItem key={c} value={c} className="text-slate-100 hover:bg-slate-800">
+                      <SelectItem key={c} value={c} className="text-foreground hover:bg-muted">
                         {c}
                       </SelectItem>
                     ))}
@@ -434,25 +434,25 @@ export default function AdminProducts() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="space-y-2">
-                <p className="text-xs font-bold text-slate-300">Sales price (INR)</p>
-                <Input value={draft.salesPrice} onChange={(e) => setDraft((d) => ({ ...d, salesPrice: e.target.value }))} className="rounded-xl bg-slate-900/40 border-slate-800 text-slate-100" />
+                <p className="text-xs font-bold text-muted-foreground">Sales price (INR)</p>
+                <Input value={draft.salesPrice} onChange={(e) => setDraft((d) => ({ ...d, salesPrice: e.target.value }))} className="rounded-xl bg-white border-border text-foreground" />
               </div>
               <div className="space-y-2">
-                <p className="text-xs font-bold text-slate-300">Purchase price (INR)</p>
-                <Input value={draft.purchasePrice} onChange={(e) => setDraft((d) => ({ ...d, purchasePrice: e.target.value }))} className="rounded-xl bg-slate-900/40 border-slate-800 text-slate-100" />
+                <p className="text-xs font-bold text-muted-foreground">Purchase price (INR)</p>
+                <Input value={draft.purchasePrice} onChange={(e) => setDraft((d) => ({ ...d, purchasePrice: e.target.value }))} className="rounded-xl bg-white border-border text-foreground" />
               </div>
               <div className="space-y-2">
-                <p className="text-xs font-bold text-slate-300">Video link (optional)</p>
-                <Input value={draft.videoUrl} onChange={(e) => setDraft((d) => ({ ...d, videoUrl: e.target.value }))} placeholder="https://..." className="rounded-xl bg-slate-900/40 border-slate-800 text-slate-100" />
+                <p className="text-xs font-bold text-muted-foreground">Video link (optional)</p>
+                <Input value={draft.videoUrl} onChange={(e) => setDraft((d) => ({ ...d, videoUrl: e.target.value }))} placeholder="https://..." className="rounded-xl bg-white border-border text-foreground" />
               </div>
               <div className="space-y-2">
-                <p className="text-xs font-bold text-slate-300">Quantity (stock)</p>
-                <Input value={draft.quantity} onChange={(e) => setDraft((d) => ({ ...d, quantity: e.target.value }))} className="rounded-xl bg-slate-900/40 border-slate-800 text-slate-100" />
+                <p className="text-xs font-bold text-muted-foreground">Quantity (stock)</p>
+                <Input value={draft.quantity} onChange={(e) => setDraft((d) => ({ ...d, quantity: e.target.value }))} className="rounded-xl bg-white border-border text-foreground" />
               </div>
             </div>
 
             <div className="space-y-2">
-              <p className="text-xs font-bold text-slate-300">Upload multiple images (optional)</p>
+              <p className="text-xs font-bold text-muted-foreground">Upload multiple images (optional)</p>
               <Input
                 type="file"
                 accept="image/*"
@@ -461,42 +461,42 @@ export default function AdminProducts() {
                   const dataUrls = await readFilesAsDataUrls(e.target.files);
                   setDraftImages(dataUrls);
                 }}
-                className="rounded-xl bg-slate-900/40 border-slate-800 text-slate-100"
+                className="rounded-xl bg-white border-border text-foreground"
               />
-              <p className="text-xs text-slate-400">If no upload, paste image URLs below (comma/newline separated).</p>
+              <p className="text-xs text-muted-foreground">If no upload, paste image URLs below (comma/newline separated).</p>
             </div>
 
             <div className="space-y-2">
-              <p className="text-xs font-bold text-slate-300">Image URLs (comma/newline separated)</p>
+              <p className="text-xs font-bold text-muted-foreground">Image URLs (comma/newline separated)</p>
               <Textarea
                 value={draft.imageUrlsText}
                 onChange={(e) => setDraft((d) => ({ ...d, imageUrlsText: e.target.value }))}
                 placeholder="https://... , https://... "
                 rows={3}
-                className="rounded-xl bg-slate-900/40 border-slate-800 text-slate-100"
+                className="rounded-xl bg-white border-border text-foreground"
               />
             </div>
 
             <div className="space-y-2">
-              <p className="text-xs font-bold text-slate-300">Available Colors (comma separated)</p>
-              <Input value={draft.colorsText} onChange={(e) => setDraft((d) => ({ ...d, colorsText: e.target.value }))} placeholder="Red, Blue, Black" className="rounded-xl bg-slate-900/40 border-slate-800 text-slate-100" />
+              <p className="text-xs font-bold text-muted-foreground">Available Colors (comma separated)</p>
+              <Input value={draft.colorsText} onChange={(e) => setDraft((d) => ({ ...d, colorsText: e.target.value }))} placeholder="Red, Blue, Black" className="rounded-xl bg-white border-border text-foreground" />
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="space-y-2">
-                <p className="text-xs font-bold text-slate-300">Available sizes (comma separated)</p>
-                <Input value={draft.availableSizesText} onChange={(e) => setDraft((d) => ({ ...d, availableSizesText: e.target.value }))} placeholder="S, M, L" className="rounded-xl bg-slate-900/40 border-slate-800 text-slate-100" />
+                <p className="text-xs font-bold text-muted-foreground">Available sizes (comma separated)</p>
+                <Input value={draft.availableSizesText} onChange={(e) => setDraft((d) => ({ ...d, availableSizesText: e.target.value }))} placeholder="S, M, L" className="rounded-xl bg-white border-border text-foreground" />
               </div>
               <div className="space-y-2">
-                <p className="text-xs font-bold text-slate-300">Minimum quantity</p>
-                <Input value={draft.minimumQuantity} onChange={(e) => setDraft((d) => ({ ...d, minimumQuantity: e.target.value }))} className="rounded-xl bg-slate-900/40 border-slate-800 text-slate-100" />
+                <p className="text-xs font-bold text-muted-foreground">Minimum quantity</p>
+                <Input value={draft.minimumQuantity} onChange={(e) => setDraft((d) => ({ ...d, minimumQuantity: e.target.value }))} className="rounded-xl bg-white border-border text-foreground" />
               </div>
             </div>
 
             {draftImages.length > 0 ? (
               <div className="flex flex-wrap gap-2">
                 {draftImages.slice(0, 6).map((src, i) => (
-                  <img key={`${src}:${i}`} src={src} alt="preview" className="w-16 h-16 rounded-lg object-cover bg-slate-800" />
+                  <img key={`${src}:${i}`} src={src} alt="preview" className="w-16 h-16 rounded-lg object-cover bg-muted" />
                 ))}
               </div>
             ) : null}
@@ -507,7 +507,7 @@ export default function AdminProducts() {
               </Button>
               <Button
                 variant="outline"
-                className="flex-1 rounded-xl font-bold border-slate-800 text-slate-200"
+                className="flex-1 rounded-xl font-bold border-border text-foreground"
                 onClick={() => {
                   setCreateOpen(false);
                   setEditOpen(false);

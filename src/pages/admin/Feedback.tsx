@@ -80,13 +80,13 @@ export default function AdminFeedback() {
       {
         accessorKey: "userName",
         header: "User",
-        cell: ({ row }) => <span className="font-bold text-slate-100">{row.original.userName}</span>,
+        cell: ({ row }) => <span className="font-bold text-foreground">{row.original.userName}</span>,
       },
       {
         accessorKey: "productId",
         header: "Product",
         enableSorting: false,
-        cell: ({ row }) => <span className="text-slate-300 font-mono">#{row.original.productId}</span>,
+        cell: ({ row }) => <span className="text-muted-foreground font-mono">#{row.original.productId}</span>,
       },
       {
         accessorKey: "rating",
@@ -117,7 +117,7 @@ export default function AdminFeedback() {
             onClick={() => setPreview(row.original)}
             aria-label="Preview comment"
           >
-            <div className="text-sm text-slate-200 line-clamp-2">{row.original.comment}</div>
+            <div className="text-sm text-foreground line-clamp-2">{row.original.comment}</div>
           </button>
         ),
       },
@@ -156,7 +156,7 @@ export default function AdminFeedback() {
               <Button
                 size="sm"
                 variant="outline"
-                className="rounded-xl font-bold border-slate-700"
+                className="rounded-xl font-bold border-border"
                 type="button"
                 onClick={() => {
                   setEditDraft({ reviewId: r.id, rating: r.rating, comment: r.comment });
@@ -203,22 +203,22 @@ export default function AdminFeedback() {
   return (
     <div className="space-y-4">
       <div className="space-y-1">
-        <h1 className="text-2xl font-black text-slate-50">Feedback & Comments Moderation</h1>
-        <p className="text-sm text-slate-300">Approve or delete customer reviews before they appear publicly (mock).</p>
+        <h1 className="text-2xl font-black text-foreground">Feedback & Comments Moderation</h1>
+        <p className="text-sm text-muted-foreground">Approve or delete customer reviews before they appear publicly (mock).</p>
       </div>
 
       <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
         <div className="flex gap-2">
           <Button
             variant={tab === "pending" ? "default" : "outline"}
-            className={tab === "pending" ? "rounded-xl font-bold" : "rounded-xl font-bold border-slate-700 text-slate-200"}
+            className={tab === "pending" ? "rounded-xl font-bold" : "rounded-xl font-bold border-border text-foreground"}
             onClick={() => setTab("pending")}
           >
             Pending
           </Button>
           <Button
             variant={tab === "approved" ? "default" : "outline"}
-            className={tab === "approved" ? "rounded-xl font-bold" : "rounded-xl font-bold border-slate-700 text-slate-200"}
+            className={tab === "approved" ? "rounded-xl font-bold" : "rounded-xl font-bold border-border text-foreground"}
             onClick={() => setTab("approved")}
           >
             Approved
@@ -230,21 +230,21 @@ export default function AdminFeedback() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search reviews…"
-            className="rounded-xl bg-slate-900/40 border-slate-800 text-slate-100 placeholder:text-slate-400"
+            className="rounded-xl bg-white border-border text-foreground placeholder:text-muted-foreground"
           />
         </div>
       </div>
 
       {loading ? (
-        <div className="bg-slate-900/40 border border-slate-800 rounded-2xl p-5 text-slate-300">Loading…</div>
+        <div className="bg-white border border-border rounded-2xl p-5 text-muted-foreground">Loading…</div>
       ) : (
-        <div className="bg-slate-900/30 border border-slate-800 rounded-2xl overflow-hidden">
+        <div className="bg-white border border-border rounded-2xl overflow-hidden">
           <Table>
             <TableHeader>
               {table.getHeaderGroups().map((headerGroup) => (
                 <TableRow key={headerGroup.id}>
                   {headerGroup.headers.map((header) => (
-                    <TableHead key={header.id} className="text-slate-300 bg-slate-900/40 border-slate-800">
+                    <TableHead key={header.id} className="text-muted-foreground bg-muted/40 border-border">
                       {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
                     </TableHead>
                   ))}
@@ -253,9 +253,9 @@ export default function AdminFeedback() {
             </TableHeader>
             <TableBody>
               {table.getRowModel().rows.map((row) => (
-                <TableRow key={row.id} className="border-slate-800">
+                <TableRow key={row.id} className="border-border">
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id} className="text-slate-200 border-slate-800">
+                    <TableCell key={cell.id} className="text-foreground border-border">
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </TableCell>
                   ))}
@@ -267,16 +267,16 @@ export default function AdminFeedback() {
       )}
 
       <Dialog open={preview != null} onOpenChange={(o) => !o && setPreview(null)}>
-        <DialogContent className="rounded-2xl bg-slate-950 border-slate-800 text-slate-100 max-w-xl">
+        <DialogContent className="rounded-2xl bg-white border-border text-foreground max-w-xl">
           <DialogHeader>
             <DialogTitle className="font-black">Review Preview</DialogTitle>
           </DialogHeader>
           {preview ? (
             <div className="space-y-3">
-              <div className="text-sm text-slate-300">
-                <span className="font-bold text-slate-100">{preview.userName}</span> • Product #{preview.productId}
+              <div className="text-sm text-muted-foreground">
+                <span className="font-bold text-foreground">{preview.userName}</span> • Product #{preview.productId}
               </div>
-              <div className="text-sm text-slate-200">{preview.comment}</div>
+              <div className="text-sm text-foreground">{preview.comment}</div>
             </div>
           ) : null}
         </DialogContent>
@@ -288,7 +288,7 @@ export default function AdminFeedback() {
           if (!o) setEditOpen(false);
         }}
       >
-        <DialogContent className="rounded-2xl bg-slate-950 border-slate-800 text-slate-100 max-w-xl">
+        <DialogContent className="rounded-2xl bg-white border-border text-foreground max-w-xl">
           <DialogHeader>
             <DialogTitle className="font-black">Edit Review</DialogTitle>
           </DialogHeader>
@@ -296,23 +296,23 @@ export default function AdminFeedback() {
           {editDraft ? (
             <div className="space-y-3 pt-2">
               <div className="space-y-2">
-                <p className="text-xs font-bold text-slate-300">Rating</p>
+                <p className="text-xs font-bold text-muted-foreground">Rating</p>
                 <Input
                   type="number"
                   min={1}
                   max={5}
                   value={editDraft.rating}
                   onChange={(e) => setEditDraft((d) => (d ? { ...d, rating: Number(e.target.value) } : d))}
-                  className="rounded-xl bg-slate-900/40 border-slate-800 text-slate-100"
+                  className="rounded-xl bg-white border-border text-foreground"
                 />
               </div>
 
               <div className="space-y-2">
-                <p className="text-xs font-bold text-slate-300">Comment</p>
+                <p className="text-xs font-bold text-muted-foreground">Comment</p>
                 <Textarea
                   value={editDraft.comment}
                   onChange={(e) => setEditDraft((d) => (d ? { ...d, comment: e.target.value } : d))}
-                  className="rounded-xl bg-slate-900/40 border-slate-800 text-slate-100 min-h-[120px]"
+                  className="rounded-xl bg-white border-border text-foreground min-h-[120px]"
                 />
               </div>
 
@@ -343,7 +343,7 @@ export default function AdminFeedback() {
                 <Button
                   type="button"
                   variant="outline"
-                  className="flex-1 rounded-xl font-bold border-slate-800 text-slate-200"
+                  className="flex-1 rounded-xl font-bold border-border text-foreground"
                   onClick={() => setEditOpen(false)}
                 >
                   Cancel

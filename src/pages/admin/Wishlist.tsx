@@ -80,7 +80,7 @@ export default function AdminWishlist() {
       {
         accessorKey: "rank",
         header: "#",
-        cell: ({ row }) => <span className="font-black text-slate-100">{row.original.rank}</span>,
+        cell: ({ row }) => <span className="font-black text-foreground">{row.original.rank}</span>,
       },
       {
         id: "product",
@@ -91,8 +91,8 @@ export default function AdminWishlist() {
           <div className="flex items-center gap-3 min-w-0">
             <img src={row.original.imageArray?.[0] ?? row.original.image} alt={row.original.name} className="w-12 h-16 rounded-lg object-cover bg-secondary" />
             <div className="min-w-0">
-              <div className="font-bold text-slate-100 truncate">{row.original.name}</div>
-              <div className="text-xs text-slate-300">{row.original.category}</div>
+              <div className="font-bold text-foreground truncate">{row.original.name}</div>
+              <div className="text-xs text-muted-foreground">{row.original.category}</div>
             </div>
           </div>
         ),
@@ -100,13 +100,13 @@ export default function AdminWishlist() {
       {
         accessorKey: "price",
         header: "Price",
-        cell: ({ row }) => <span className="font-bold text-slate-100">₹{row.original.price}</span>,
+        cell: ({ row }) => <span className="font-bold text-foreground">₹{row.original.price}</span>,
       },
       {
         accessorKey: "likeCount",
         header: "Likes",
         cell: ({ row }) => (
-          <div className="flex items-center gap-1 font-black text-slate-100">
+          <div className="flex items-center gap-1 font-black text-foreground">
             <Heart className="w-4 h-4 fill-primary text-primary" strokeWidth={1.5} />
             {row.original.likeCount}
           </div>
@@ -152,8 +152,8 @@ export default function AdminWishlist() {
   return (
     <div className="space-y-4">
       <div className="space-y-1">
-        <h1 className="text-2xl font-black text-slate-50">Wishlist & Likes</h1>
-        <p className="text-sm text-slate-300">Most liked products and like reset actions (mock).</p>
+        <h1 className="text-2xl font-black text-foreground">Wishlist & Likes</h1>
+        <p className="text-sm text-muted-foreground">Most liked products and like reset actions (mock).</p>
       </div>
 
       <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
@@ -162,21 +162,21 @@ export default function AdminWishlist() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search products…"
-            className="rounded-xl bg-slate-900/40 border-slate-800 text-slate-100 placeholder:text-slate-400"
+            className="rounded-xl bg-white border-border text-foreground placeholder:text-muted-foreground"
           />
         </div>
       </div>
 
       {loading ? (
-        <div className="bg-slate-900/40 border border-slate-800 rounded-2xl p-5 text-slate-300">Loading…</div>
+        <div className="bg-white border border-border rounded-2xl p-5 text-muted-foreground">Loading…</div>
       ) : (
-        <div className="bg-slate-900/30 border border-slate-800 rounded-2xl overflow-hidden">
+        <div className="bg-white border border-border rounded-2xl overflow-hidden">
           <Table>
             <TableHeader>
               {table.getHeaderGroups().map((headerGroup) => (
                 <TableRow key={headerGroup.id}>
                   {headerGroup.headers.map((header) => (
-                    <TableHead key={header.id} className="text-slate-300 bg-slate-900/40 border-slate-800">
+                    <TableHead key={header.id} className="text-muted-foreground bg-muted/40 border-border">
                       {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
                     </TableHead>
                   ))}
@@ -185,9 +185,9 @@ export default function AdminWishlist() {
             </TableHeader>
             <TableBody>
               {table.getRowModel().rows.map((row) => (
-                <TableRow key={row.id} className="border-slate-800">
+                <TableRow key={row.id} className="border-border">
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id} className="text-slate-200 border-slate-800">
+                    <TableCell key={cell.id} className="text-foreground border-border">
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </TableCell>
                   ))}

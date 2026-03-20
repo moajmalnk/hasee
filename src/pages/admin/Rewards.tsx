@@ -65,17 +65,17 @@ export default function AdminRewards() {
       {
         accessorKey: "userName",
         header: "User",
-        cell: ({ row }) => <span className="font-bold text-slate-100">{row.original.userName}</span>,
+        cell: ({ row }) => <span className="font-bold text-foreground">{row.original.userName}</span>,
       },
       {
         accessorKey: "referrerPhone",
         header: "Phone",
-        cell: ({ row }) => <span className="font-mono text-slate-300">{row.original.referrerPhone}</span>,
+        cell: ({ row }) => <span className="font-mono text-muted-foreground">{row.original.referrerPhone}</span>,
       },
       {
         accessorKey: "paidReferrals",
         header: "Paid Refs",
-        cell: ({ row }) => <span className="font-black text-slate-100">{row.original.paidReferrals}</span>,
+        cell: ({ row }) => <span className="font-black text-foreground">{row.original.paidReferrals}</span>,
       },
       {
         id: "status",
@@ -141,21 +141,21 @@ export default function AdminRewards() {
   return (
     <div className="space-y-4">
       <div className="space-y-1">
-        <h1 className="text-2xl font-black text-slate-50 flex items-center gap-2">
+        <h1 className="text-2xl font-black text-foreground flex items-center gap-2">
           <Gift className="w-6 h-6" strokeWidth={1.5} />
           Rewards CRUD
         </h1>
-        <p className="text-sm text-slate-300">Manage Free Maxi claims and dispatch workflow (mock).</p>
+        <p className="text-sm text-muted-foreground">Manage Free Maxi claims and dispatch workflow (mock).</p>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-        <Card className="rounded-2xl bg-slate-900/40 border-slate-800 p-4">
-          <p className="text-[10px] font-extrabold uppercase tracking-widest text-slate-400">Pending Rewards</p>
-          <p className="text-xl font-black text-slate-50 mt-1">{readyCount}</p>
+        <Card className="rounded-2xl bg-white border-border p-4">
+          <p className="text-[10px] font-extrabold uppercase tracking-widest text-muted-foreground">Pending Rewards</p>
+          <p className="text-xl font-black text-foreground mt-1">{readyCount}</p>
         </Card>
-        <Card className="rounded-2xl bg-slate-900/40 border-slate-800 p-4">
-          <p className="text-[10px] font-extrabold uppercase tracking-widest text-slate-400">Dispatched</p>
-          <p className="text-xl font-black text-slate-50 mt-1">{dispatchedCount}</p>
+        <Card className="rounded-2xl bg-white border-border p-4">
+          <p className="text-[10px] font-extrabold uppercase tracking-widest text-muted-foreground">Dispatched</p>
+          <p className="text-xl font-black text-foreground mt-1">{dispatchedCount}</p>
         </Card>
       </div>
 
@@ -165,18 +165,18 @@ export default function AdminRewards() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search claims…"
-            className="rounded-xl bg-slate-900/40 border-slate-800 text-slate-100 placeholder:text-slate-400"
+            className="rounded-xl bg-white border-border text-foreground placeholder:text-muted-foreground"
           />
         </div>
       </div>
 
-      <div className="bg-slate-900/30 border border-slate-800 rounded-2xl overflow-hidden">
+      <div className="bg-white border border-border rounded-2xl overflow-hidden">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
-                  <TableHead key={header.id} className="text-slate-300 bg-slate-900/40 border-slate-800">
+                  <TableHead key={header.id} className="text-muted-foreground bg-muted/40 border-border">
                     {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
                   </TableHead>
                 ))}
@@ -185,9 +185,9 @@ export default function AdminRewards() {
           </TableHeader>
           <TableBody>
             {table.getRowModel().rows.map((row) => (
-              <TableRow key={row.id} className="border-slate-800">
+              <TableRow key={row.id} className="border-border">
                 {row.getVisibleCells().map((cell) => (
-                  <TableCell key={cell.id} className="text-slate-200 border-slate-800">
+                  <TableCell key={cell.id} className="text-foreground border-border">
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </TableCell>
                 ))}

@@ -50,8 +50,8 @@ export default function AdminSidebar() {
             <span className="text-primary-foreground text-sm font-black">H</span>
           </div>
           <div className="leading-tight">
-            <p className="text-sm font-extrabold text-slate-100 tracking-wide">Hasee Admin</p>
-            <p className="text-[10px] font-bold text-slate-300 uppercase tracking-widest">Pink & Slate</p>
+            <p className="text-sm font-extrabold text-foreground tracking-wide">Hasee Admin</p>
+            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Pink & White</p>
           </div>
         </div>
       </SidebarHeader>
@@ -84,7 +84,7 @@ export default function AdminSidebar() {
       <SidebarFooter className="p-2">
         <Button
           variant="outline"
-          className="w-full rounded-xl bg-transparent border-slate-800 hover:bg-slate-900/50 font-bold"
+          className="w-full rounded-xl bg-white border-border hover:bg-muted font-bold"
           onClick={() => void onLogout()}
         >
           Logout

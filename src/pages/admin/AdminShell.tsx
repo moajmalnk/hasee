@@ -13,7 +13,7 @@ export default function AdminShell({ children }: { children: ReactNode }) {
           </SidebarContent>
         </Sidebar>
 
-        <SidebarInset className="bg-background text-foreground dark:bg-slate-950 dark:text-slate-100">
+        <SidebarInset className="bg-white text-foreground">
           <div className="h-full">
             <AdminTopBar />
             <div className="p-4 md:p-6 lg:p-8">{children}</div>

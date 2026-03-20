@@ -15,9 +15,9 @@ import AdminWishlist from "./admin/Wishlist";
 
 function ComingSoon({ title }: { title: string }) {
   return (
-    <div className="bg-card dark:bg-slate-900/40 border border-border dark:border-slate-800 rounded-2xl p-5 text-foreground dark:text-slate-300">
-      <p className="text-lg font-black text-foreground dark:text-slate-50">{title}</p>
-      <p className="text-sm text-muted-foreground dark:text-slate-400 mt-1">Coming soon (mock admin module).</p>
+    <div className="bg-white border border-border rounded-2xl p-5 text-foreground">
+      <p className="text-lg font-black text-foreground">{title}</p>
+      <p className="text-sm text-muted-foreground mt-1">Coming soon (mock admin module).</p>
     </div>
   );
 }

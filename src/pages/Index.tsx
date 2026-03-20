@@ -40,7 +40,7 @@ const Index = () => {
 
         {/* Offer Closing Soon */}
         <section className="grid grid-cols-12 gap-3">
-          <div className="relative overflow-hidden rounded-3xl border border-border bg-card col-span-12 md:col-span-6">
+          <div className="relative overflow-hidden rounded-3xl border border-border bg-card col-span-12">
             <div className="p-5 space-y-3">
               <div className="flex items-center justify-between gap-3">
                 <p className="text-xs font-bold uppercase tracking-widest text-primary">

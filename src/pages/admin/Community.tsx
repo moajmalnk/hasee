@@ -79,23 +79,23 @@ export default function AdminCommunity() {
       {
         accessorKey: "userName",
         header: "Customer",
-        cell: ({ row }) => <span className="font-bold text-slate-100">{row.original.userName}</span>,
+        cell: ({ row }) => <span className="font-bold text-foreground">{row.original.userName}</span>,
       },
       {
         accessorKey: "productName",
         header: "Product",
-        cell: ({ row }) => <span className="text-slate-200">{row.original.productName}</span>,
+        cell: ({ row }) => <span className="text-foreground">{row.original.productName}</span>,
       },
       {
         accessorKey: "date",
         header: "Date",
-        cell: ({ row }) => <span className="text-slate-300">{row.original.date}</span>,
+        cell: ({ row }) => <span className="text-muted-foreground">{row.original.date}</span>,
       },
       {
         accessorKey: "likes",
         header: "Likes",
         enableSorting: false,
-        cell: ({ row }) => <span className="text-slate-200 font-bold">{row.original.likes}</span>,
+        cell: ({ row }) => <span className="text-foreground font-bold">{row.original.likes}</span>,
       },
       {
         id: "approved",
@@ -126,7 +126,7 @@ export default function AdminCommunity() {
               setPreview({ src: row.original.image, caption: row.original.caption });
               setPreviewOpen(true);
             }}
-            className="rounded-lg overflow-hidden bg-slate-800"
+            className="rounded-lg overflow-hidden bg-muted"
             aria-label="Preview customer photo"
           >
             <img src={row.original.image} alt={row.original.caption} className="w-16 h-16 object-cover" />
@@ -193,7 +193,7 @@ export default function AdminCommunity() {
                   <Button
                     size="sm"
                     variant="outline"
-                    className="rounded-xl font-bold border-slate-700"
+                    className="rounded-xl font-bold border-border"
                     type="button"
                   >
                     <Star className="w-4 h-4 mr-1" strokeWidth={1.5} />
@@ -221,7 +221,7 @@ export default function AdminCommunity() {
                     <Button
                       size="sm"
                       variant="outline"
-                      className="rounded-xl font-bold border-slate-700"
+                      className="rounded-xl font-bold border-border"
                       type="button"
                     >
                       Revert
@@ -267,34 +267,34 @@ export default function AdminCommunity() {
   return (
     <div className="space-y-4">
       <div className="space-y-1">
-        <h1 className="text-2xl font-black text-slate-50">Community Moderation</h1>
-        <p className="text-sm text-slate-300">Approve or delete customer style photos before they appear on the public site.</p>
+        <h1 className="text-2xl font-black text-foreground">Community Moderation</h1>
+        <p className="text-sm text-muted-foreground">Approve or delete customer style photos before they appear on the public site.</p>
       </div>
 
       <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-        <div className="text-sm text-slate-300">
-          Pending: <span className="font-bold text-slate-100">{posts.filter((p) => p.approved === false).length}</span>
+        <div className="text-sm text-muted-foreground">
+          Pending: <span className="font-bold text-foreground">{posts.filter((p) => p.approved === false).length}</span>
         </div>
         <div className="w-full md:w-72">
           <Input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search posts…"
-            className="rounded-xl bg-slate-900/40 border-slate-800 text-slate-100 placeholder:text-slate-400"
+            className="rounded-xl bg-white border-border text-foreground placeholder:text-muted-foreground"
           />
         </div>
       </div>
 
       {loading ? (
-        <div className="bg-slate-900/40 border border-slate-800 rounded-2xl p-5 text-slate-300">Loading…</div>
+        <div className="bg-white border border-border rounded-2xl p-5 text-muted-foreground">Loading…</div>
       ) : (
-        <div className="bg-slate-900/30 border border-slate-800 rounded-2xl overflow-hidden">
+        <div className="bg-white border border-border rounded-2xl overflow-hidden">
           <Table>
             <TableHeader>
               {table.getHeaderGroups().map((headerGroup) => (
                 <TableRow key={headerGroup.id}>
                   {headerGroup.headers.map((header) => (
-                    <TableHead key={header.id} className="text-slate-300 bg-slate-900/40 border-slate-800">
+                    <TableHead key={header.id} className="text-muted-foreground bg-muted/40 border-border">
                       {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
                     </TableHead>
                   ))}
@@ -303,9 +303,9 @@ export default function AdminCommunity() {
             </TableHeader>
             <TableBody>
               {table.getRowModel().rows.map((row) => (
-                <TableRow key={row.id} className="border-slate-800">
+                <TableRow key={row.id} className="border-border">
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id} className="text-slate-200 border-slate-800">
+                    <TableCell key={cell.id} className="text-foreground border-border">
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </TableCell>
                   ))}
@@ -317,7 +317,7 @@ export default function AdminCommunity() {
       )}
 
       <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
-        <DialogContent className="rounded-2xl bg-slate-950 border-slate-800 text-slate-100 max-w-xl">
+        <DialogContent className="rounded-2xl bg-white border-border text-foreground max-w-xl">
           <DialogHeader>
             <DialogTitle className="font-black flex items-center gap-2">
               <ImageIcon className="w-4 h-4" strokeWidth={1.5} />
@@ -326,8 +326,8 @@ export default function AdminCommunity() {
           </DialogHeader>
           {preview ? (
             <div className="space-y-3">
-              <img src={preview.src} alt={preview.caption} className="w-full rounded-2xl bg-slate-900" />
-              <p className="text-sm text-slate-300">{preview.caption}</p>
+              <img src={preview.src} alt={preview.caption} className="w-full rounded-2xl bg-muted" />
+              <p className="text-sm text-muted-foreground">{preview.caption}</p>
             </div>
           ) : null}
         </DialogContent>

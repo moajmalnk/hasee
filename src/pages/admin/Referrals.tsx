@@ -84,8 +84,8 @@ export default function AdminReferrals() {
         header: "Referrer",
         cell: ({ row }) => (
           <div className="min-w-0">
-            <div className="font-bold text-slate-100 truncate">{row.original.referrerName ?? "—"}</div>
-            <div className="text-xs text-slate-300 font-mono truncate">{row.original.referrerPhone ?? "—"}</div>
+            <div className="font-bold text-foreground truncate">{row.original.referrerName ?? "—"}</div>
+            <div className="text-xs text-muted-foreground font-mono truncate">{row.original.referrerPhone ?? "—"}</div>
           </div>
         ),
       },
@@ -94,15 +94,15 @@ export default function AdminReferrals() {
         header: "Referee",
         cell: ({ row }) => (
           <div className="min-w-0">
-            <div className="font-bold text-slate-100 truncate">{row.original.name}</div>
-            <div className="text-xs text-slate-300 font-mono truncate">{row.original.phone}</div>
+            <div className="font-bold text-foreground truncate">{row.original.name}</div>
+            <div className="text-xs text-muted-foreground font-mono truncate">{row.original.phone}</div>
           </div>
         ),
       },
       {
         accessorKey: "productCategory",
         header: "Category",
-        cell: ({ row }) => <span className="text-slate-200">{row.original.productCategory ?? "—"}</span>,
+        cell: ({ row }) => <span className="text-foreground">{row.original.productCategory ?? "—"}</span>,
       },
       {
         id: "days",
@@ -110,7 +110,7 @@ export default function AdminReferrals() {
         enableSorting: false,
         cell: ({ row }) => {
           const d = daysSince(row.original.deliveryDate);
-          return <span className="text-slate-200">{d == null ? "—" : `${Math.floor(d)}d`}</span>;
+          return <span className="text-foreground">{d == null ? "—" : `${Math.floor(d)}d`}</span>;
         },
       },
       {
@@ -123,13 +123,13 @@ export default function AdminReferrals() {
           const refunded = !!lead.refunded || lead.status === "Refunded";
 
           let label = lead.status;
-          let className = "bg-slate-800 text-slate-200 border border-slate-700";
+          let className = "bg-muted text-foreground border border-border";
           if (refunded) {
             label = "Refunded";
             className = "bg-destructive/10 text-destructive border border-destructive/20";
           } else if (!lead.deliveryDate) {
             label = "Clicked";
-            className = "bg-slate-800 text-slate-200 border border-slate-700";
+            className = "bg-muted text-foreground border border-border";
           } else if (d != null && d > 15) {
             label = "Successful";
             className = "bg-whatsapp/10 text-whatsapp border border-whatsapp/20";
@@ -156,7 +156,7 @@ export default function AdminReferrals() {
                 <Button
                   size="sm"
                   variant="outline"
-                  className="rounded-xl font-bold border-slate-700"
+                  className="rounded-xl font-bold border-border"
                   onClick={async () => {
                     try {
                       await setLeadRefunded(lead.phone, false);
@@ -173,7 +173,7 @@ export default function AdminReferrals() {
                 <Button
                   size="sm"
                   variant="outline"
-                  className="rounded-xl font-bold border-slate-700"
+                  className="rounded-xl font-bold border-border"
                   onClick={async () => {
                     try {
                       await setLeadRefunded(lead.phone, true);
@@ -209,22 +209,22 @@ export default function AdminReferrals() {
   return (
     <div className="space-y-4">
       <div className="space-y-1">
-        <h1 className="text-2xl font-black text-slate-50">Referrals CRUD</h1>
-        <p className="text-sm text-slate-300">Track referrer vs referee with the 15-day safe zone.</p>
+        <h1 className="text-2xl font-black text-foreground">Referrals CRUD</h1>
+        <p className="text-sm text-muted-foreground">Track referrer vs referee with the 15-day safe zone.</p>
       </div>
 
       <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
         <div className="flex gap-2">
           <Button
             variant={tab === "all" ? "default" : "outline"}
-            className={tab === "all" ? "rounded-xl font-bold bg-primary" : "rounded-xl font-bold border-slate-700 text-slate-200"}
+            className={tab === "all" ? "rounded-xl font-bold bg-primary" : "rounded-xl font-bold border-border text-foreground"}
             onClick={() => setTab("all")}
           >
             All Leads
           </Button>
           <Button
             variant={tab === "refunded" ? "default" : "outline"}
-            className={tab === "refunded" ? "rounded-xl font-bold bg-primary" : "rounded-xl font-bold border-slate-700 text-slate-200"}
+            className={tab === "refunded" ? "rounded-xl font-bold bg-primary" : "rounded-xl font-bold border-border text-foreground"}
             onClick={() => setTab("refunded")}
           >
             Refunded Members
@@ -236,21 +236,21 @@ export default function AdminReferrals() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search leads…"
-            className="rounded-xl bg-slate-900/40 border-slate-800 text-slate-100 placeholder:text-slate-400"
+            className="rounded-xl bg-white border-border text-foreground placeholder:text-muted-foreground"
           />
         </div>
       </div>
 
       {loading ? (
-        <div className="bg-slate-900/40 border border-slate-800 rounded-2xl p-5 text-slate-300">Loading…</div>
+        <div className="bg-white border border-border rounded-2xl p-5 text-muted-foreground">Loading…</div>
       ) : (
-        <div className="bg-slate-900/30 border border-slate-800 rounded-2xl overflow-hidden">
+        <div className="bg-white border border-border rounded-2xl overflow-hidden">
           <Table>
             <TableHeader>
               {table.getHeaderGroups().map((headerGroup) => (
                 <TableRow key={headerGroup.id}>
                   {headerGroup.headers.map((header) => (
-                    <TableHead key={header.id} className="text-slate-300 bg-slate-900/40 border-slate-800">
+                    <TableHead key={header.id} className="text-muted-foreground bg-muted/40 border-border">
                       {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
                     </TableHead>
                   ))}
@@ -259,9 +259,9 @@ export default function AdminReferrals() {
             </TableHeader>
             <TableBody>
               {table.getRowModel().rows.map((row) => (
-                <TableRow key={row.id} className="border-slate-800">
+                <TableRow key={row.id} className="border-border">
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id} className="text-slate-200 border-slate-800">
+                    <TableCell key={cell.id} className="text-foreground border-border">
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </TableCell>
                   ))}

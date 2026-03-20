@@ -146,20 +146,20 @@ export default function AdminCoupons() {
       {
         accessorKey: "code",
         header: "Code",
-        cell: ({ row }) => <span className="font-black text-slate-100">{row.original.code}</span>,
+        cell: ({ row }) => <span className="font-black text-foreground">{row.original.code}</span>,
       },
       {
         accessorKey: "expiryDate",
         header: "Expiry",
         cell: ({ row }) => (
-          <span className="text-slate-300">{new Date(row.original.expiryDate).toLocaleDateString()}</span>
+          <span className="text-muted-foreground">{new Date(row.original.expiryDate).toLocaleDateString()}</span>
         ),
       },
       {
         accessorKey: "usageCount",
         header: "Usage",
         cell: ({ row }) => (
-          <span className="text-slate-200 font-bold">
+          <span className="text-foreground font-bold">
             {row.original.usageCount}/{row.original.usageLimit}
           </span>
         ),
@@ -170,7 +170,7 @@ export default function AdminCoupons() {
         cell: ({ row }) => {
           const { discountType, discountValue } = row.original;
           return (
-            <span className="text-slate-200 font-bold">
+            <span className="text-foreground font-bold">
               {discountType === "percentage" ? `${discountValue}%` : `₹${discountValue}`}
             </span>
           );
@@ -184,7 +184,7 @@ export default function AdminCoupons() {
           const c = row.original;
           return (
             <div className="flex items-center gap-2">
-              <Button size="sm" variant="outline" className="rounded-xl font-bold border-slate-700" onClick={() => openEdit(c)}>
+              <Button size="sm" variant="outline" className="rounded-xl font-bold border-border" onClick={() => openEdit(c)}>
                 <Edit2 className="w-4 h-4 mr-1" strokeWidth={1.5} />
                 Edit
               </Button>
@@ -222,8 +222,8 @@ export default function AdminCoupons() {
     <div className="space-y-4">
       <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
         <div className="space-y-1">
-          <h1 className="text-2xl font-black text-slate-50">Coupons CRUD</h1>
-          <p className="text-sm text-slate-300">Create and manage discount codes (mock).</p>
+          <h1 className="text-2xl font-black text-foreground">Coupons CRUD</h1>
+          <p className="text-sm text-muted-foreground">Create and manage discount codes (mock).</p>
         </div>
         <div className="flex gap-2 w-full md:w-auto">
           <div className="w-full md:w-72">
@@ -231,7 +231,7 @@ export default function AdminCoupons() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search coupons…"
-              className="rounded-xl bg-slate-900/40 border-slate-800 text-slate-100 placeholder:text-slate-400"
+              className="rounded-xl bg-white border-border text-foreground placeholder:text-muted-foreground"
             />
           </div>
           <Button className="rounded-xl font-bold" onClick={openCreate}>
@@ -241,13 +241,13 @@ export default function AdminCoupons() {
         </div>
       </div>
 
-      <div className="bg-slate-900/30 border border-slate-800 rounded-2xl overflow-hidden">
+      <div className="bg-white border border-border rounded-2xl overflow-hidden">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
-                  <TableHead key={header.id} className="text-slate-300 bg-slate-900/40 border-slate-800">
+                  <TableHead key={header.id} className="text-muted-foreground bg-muted/40 border-border">
                     {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
                   </TableHead>
                 ))}
@@ -256,9 +256,9 @@ export default function AdminCoupons() {
           </TableHeader>
           <TableBody>
             {table.getRowModel().rows.map((row) => (
-              <TableRow key={row.id} className="border-slate-800">
+              <TableRow key={row.id} className="border-border">
                 {row.getVisibleCells().map((cell) => (
-                  <TableCell key={cell.id} className="text-slate-200 border-slate-800">
+                  <TableCell key={cell.id} className="text-foreground border-border">
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </TableCell>
                 ))}
@@ -274,17 +274,17 @@ export default function AdminCoupons() {
           if (!o) setOpen(false);
         }}
       >
-        <DialogContent className="rounded-2xl bg-slate-950 border-slate-800 text-slate-100 max-w-xl">
+        <DialogContent className="rounded-2xl bg-white border-border text-foreground max-w-xl">
           <DialogHeader>
             <DialogTitle className="font-black">{draft.id ? "Edit coupon" : "Add coupon"}</DialogTitle>
           </DialogHeader>
           <div className="space-y-3 pt-2">
             <div className="space-y-2">
-              <p className="text-xs font-bold text-slate-300">Code</p>
-              <Input value={draft.code} onChange={(e) => setDraft((d) => ({ ...d, code: e.target.value }))} className="rounded-xl bg-slate-900/40 border-slate-800 text-slate-100" />
+              <p className="text-xs font-bold text-muted-foreground">Code</p>
+              <Input value={draft.code} onChange={(e) => setDraft((d) => ({ ...d, code: e.target.value }))} className="rounded-xl bg-white border-border text-foreground" />
             </div>
             <div className="space-y-2">
-              <p className="text-xs font-bold text-slate-300">Expiry date</p>
+              <p className="text-xs font-bold text-muted-foreground">Expiry date</p>
               <DatePicker
                 value={draft.expiryDate}
                 onChange={(v) => setDraft((d) => ({ ...d, expiryDate: v }))}
@@ -293,18 +293,18 @@ export default function AdminCoupons() {
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="space-y-2">
-                <p className="text-xs font-bold text-slate-300">Usage limit</p>
-                <Input value={draft.usageLimit} onChange={(e) => setDraft((d) => ({ ...d, usageLimit: e.target.value }))} className="rounded-xl bg-slate-900/40 border-slate-800 text-slate-100" />
+                <p className="text-xs font-bold text-muted-foreground">Usage limit</p>
+                <Input value={draft.usageLimit} onChange={(e) => setDraft((d) => ({ ...d, usageLimit: e.target.value }))} className="rounded-xl bg-white border-border text-foreground" />
               </div>
               <div className="space-y-2">
-                <p className="text-xs font-bold text-slate-300">Used count</p>
-                <Input value={draft.usageCount} onChange={(e) => setDraft((d) => ({ ...d, usageCount: e.target.value }))} className="rounded-xl bg-slate-900/40 border-slate-800 text-slate-100" />
+                <p className="text-xs font-bold text-muted-foreground">Used count</p>
+                <Input value={draft.usageCount} onChange={(e) => setDraft((d) => ({ ...d, usageCount: e.target.value }))} className="rounded-xl bg-white border-border text-foreground" />
               </div>
             </div>
 
             {/* Discount definition */}
             <div className="space-y-2 pt-2">
-              <p className="text-xs font-bold text-slate-300">Discount type</p>
+              <p className="text-xs font-bold text-muted-foreground">Discount type</p>
               <div className="flex gap-2">
                 <Button
                   type="button"
@@ -324,11 +324,11 @@ export default function AdminCoupons() {
                 </Button>
               </div>
               <div className="space-y-2 pt-2">
-                <p className="text-xs font-bold text-slate-300">Discount value</p>
+                <p className="text-xs font-bold text-muted-foreground">Discount value</p>
                 <Input
                   value={draft.discountValue}
                   onChange={(e) => setDraft((d) => ({ ...d, discountValue: e.target.value }))}
-                  className="rounded-xl bg-slate-900/40 border-slate-800 text-slate-100"
+                  className="rounded-xl bg-white border-border text-foreground"
                   placeholder={draft.discountType === "percentage" ? "e.g. 10" : "e.g. 50"}
                 />
               </div>
@@ -338,7 +338,7 @@ export default function AdminCoupons() {
               <Button className="flex-1 rounded-xl font-bold" onClick={save}>
                 Save
               </Button>
-              <Button variant="outline" className="flex-1 rounded-xl font-bold border-slate-800 text-slate-200" onClick={() => setOpen(false)}>
+              <Button variant="outline" className="flex-1 rounded-xl font-bold border-border text-foreground" onClick={() => setOpen(false)}>
                 Cancel
               </Button>
             </div>

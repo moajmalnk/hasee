@@ -98,14 +98,14 @@ export default function AdminCategories() {
         enableHiding: true,
         filterFn: includesTextFilterFn,
       },
-      { accessorKey: "name", header: "Category", cell: ({ row }) => <span className="font-bold text-slate-100">{row.original.name}</span> },
+      { accessorKey: "name", header: "Category", cell: ({ row }) => <span className="font-bold text-foreground">{row.original.name}</span> },
       {
         id: "count",
         header: "Products",
         enableSorting: false,
         cell: ({ row }) => {
           const count = products.filter((p) => p.category === row.original.name).length;
-          return <span className="text-slate-300">{count}</span>;
+          return <span className="text-muted-foreground">{count}</span>;
         },
       },
       {
@@ -116,7 +116,7 @@ export default function AdminCategories() {
           const cat = row.original;
           return (
             <div className="flex items-center gap-2">
-              <Button size="sm" variant="outline" className="rounded-xl font-bold border-slate-700" onClick={() => openEdit(cat)}>
+              <Button size="sm" variant="outline" className="rounded-xl font-bold border-border" onClick={() => openEdit(cat)}>
                 <Edit2 className="w-4 h-4 mr-1" strokeWidth={1.5} />
                 Edit
               </Button>
@@ -156,8 +156,8 @@ export default function AdminCategories() {
     <div className="space-y-4">
       <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
         <div className="space-y-1">
-          <h1 className="text-2xl font-black text-slate-50">Categories CRUD</h1>
-          <p className="text-sm text-slate-300">Manage product categories (mock).</p>
+          <h1 className="text-2xl font-black text-foreground">Categories CRUD</h1>
+          <p className="text-sm text-muted-foreground">Manage product categories (mock).</p>
         </div>
         <div className="flex gap-2 w-full md:w-auto">
           <div className="w-full md:w-72">
@@ -165,7 +165,7 @@ export default function AdminCategories() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search categories…"
-              className="rounded-xl bg-slate-900/40 border-slate-800 text-slate-100 placeholder:text-slate-400"
+              className="rounded-xl bg-white border-border text-foreground placeholder:text-muted-foreground"
             />
           </div>
           <Button className="rounded-xl font-bold" onClick={openCreate}>
@@ -175,13 +175,13 @@ export default function AdminCategories() {
         </div>
       </div>
 
-      <div className="bg-slate-900/30 border border-slate-800 rounded-2xl overflow-hidden">
+      <div className="bg-white border border-border rounded-2xl overflow-hidden">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
-                  <TableHead key={header.id} className="text-slate-300 bg-slate-900/40 border-slate-800">
+                  <TableHead key={header.id} className="text-muted-foreground bg-muted/40 border-border">
                     {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
                   </TableHead>
                 ))}
@@ -190,9 +190,9 @@ export default function AdminCategories() {
           </TableHeader>
           <TableBody>
             {table.getRowModel().rows.map((row) => (
-              <TableRow key={row.id} className="border-slate-800">
+              <TableRow key={row.id} className="border-border">
                 {row.getVisibleCells().map((cell) => (
-                  <TableCell key={cell.id} className="text-slate-200 border-slate-800">
+                  <TableCell key={cell.id} className="text-foreground border-border">
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </TableCell>
                 ))}
@@ -211,20 +211,20 @@ export default function AdminCategories() {
           }
         }}
       >
-        <DialogContent className="rounded-2xl bg-slate-950 border-slate-800 text-slate-100 max-w-xl">
+        <DialogContent className="rounded-2xl bg-white border-border text-foreground max-w-xl">
           <DialogHeader>
             <DialogTitle className="font-black">{draft.oldName ? "Edit category" : "Add category"}</DialogTitle>
           </DialogHeader>
           <div className="space-y-3 pt-2">
             <div className="space-y-2">
-              <p className="text-xs font-bold text-slate-300">Category name</p>
-              <Input value={draft.name} onChange={(e) => setDraft((d) => ({ ...d, name: e.target.value }))} className="rounded-xl bg-slate-900/40 border-slate-800 text-slate-100" />
+              <p className="text-xs font-bold text-muted-foreground">Category name</p>
+              <Input value={draft.name} onChange={(e) => setDraft((d) => ({ ...d, name: e.target.value }))} className="rounded-xl bg-white border-border text-foreground" />
             </div>
             <div className="flex gap-2">
               <Button className="flex-1 rounded-xl font-bold" onClick={save}>
                 Save
               </Button>
-              <Button variant="outline" className="flex-1 rounded-xl font-bold border-slate-800 text-slate-200" onClick={() => { setCreateOpen(false); setEditOpen(false); }}>
+              <Button variant="outline" className="flex-1 rounded-xl font-bold border-border text-foreground" onClick={() => { setCreateOpen(false); setEditOpen(false); }}>
                 Cancel
               </Button>
             </div>

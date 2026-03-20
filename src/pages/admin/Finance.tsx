@@ -186,11 +186,11 @@ export default function Finance() {
           <div className="h-72 mt-2">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={salesVsTime}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#334155" opacity={0.5} />
-                <XAxis dataKey="date" tick={{ fill: "#94a3b8", fontSize: 12 }} />
-                <YAxis tick={{ fill: "#94a3b8", fontSize: 12 }} />
+                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" opacity={0.9} />
+                <XAxis dataKey="date" tick={{ fill: "#64748b", fontSize: 12 }} />
+                <YAxis tick={{ fill: "#64748b", fontSize: 12 }} />
                 <Tooltip
-                  contentStyle={{ background: "#0b1220", border: "1px solid #243248", color: "#e2e8f0" }}
+                  contentStyle={{ background: "#ffffff", border: "1px solid #e2e8f0", color: "#0f172a" }}
                 />
                 <Line
                   type="monotone"
@@ -220,9 +220,7 @@ export default function Finance() {
           <div className="h-72 mt-2">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
-                <Tooltip
-                  contentStyle={{ background: "#0b1220", border: "1px solid #243248", color: "#e2e8f0" }}
-                />
+                <Tooltip contentStyle={{ background: "#ffffff", border: "1px solid #e2e8f0", color: "#0f172a" }} />
                 <Pie
                   data={salesByCategory}
                   dataKey="value"
